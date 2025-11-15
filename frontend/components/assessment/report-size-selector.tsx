@@ -33,6 +33,13 @@ export function ReportSizeSelector({ currentSize, onSizeChange }: ReportSizeSele
       readTime: '10 min',
       description: 'Deep dive',
       icon: BookOpen
+    },
+    {
+      value: 'enterprise' as ReportSize,
+      label: 'Enterprise',
+      readTime: '15+ min',
+      description: 'Complete analysis',
+      icon: BookOpen
     }
   ];
 

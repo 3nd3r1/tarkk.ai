@@ -14,11 +14,11 @@ export interface Citation {
 }
 
 // §13 - Report Size Configuration
-export type ReportSize = 'small' | 'medium' | 'full';
+export type ReportSize = 'small' | 'medium' | 'full' | 'enterprise';
 
 export interface ReportConfig {
   size: ReportSize;
-  estimatedReadTime: string; // "2 min", "5 min", "10 min"
+  estimatedReadTime: string; // "2 min", "5 min", "10 min", "15+ min"
   expandedSections: string[];
 }
 
