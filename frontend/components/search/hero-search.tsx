@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search, ArrowRight, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { getSearchSuggestions } from "@/lib/api";
+import { getSearchSuggestions, createAssessment, searchAssessments } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function HeroSearch() {
@@ -33,15 +33,30 @@ export function HeroSearch() {
 
   const handleSearch = async (searchQuery: string) => {
     setIsLoading(true);
-    // In a real app, this would call the API and get/create an assessment
-    // For now, we'll use mock data
-    if (searchQuery.toLowerCase() === 'slack') {
-      router.push('/assess/slack-001');
-    } else if (searchQuery.toLowerCase() === 'github') {
-      router.push('/assess/github-001');
-    } else {
-      // Default to Slack for demo
-      router.push('/assess/slack-001');
+    try {
+      // First, check if an assessment already exists for this product
+      const existingAssessments = await searchAssessments(searchQuery);
+      
+      if (existingAssessments.length > 0) {
+        // Navigate to the first existing assessment
+        router.push(`/assess/${existingAssessments[0].id}`);
+        return;
+      }
+      
+      // Create a new assessment
+      const response = await createAssessment({
+        name: searchQuery,
+        assessment_type: 'medium',
+      });
+      
+      // Navigate to the new assessment
+      router.push(`/assess/${response.assessment_id}`);
+    } catch (error) {
+      console.error('Error creating assessment:', error);
+      // Fallback: try to navigate with the query as ID (for backward compatibility)
+      router.push(`/assess/${searchQuery.toLowerCase().replace(/\s+/g, '-')}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 

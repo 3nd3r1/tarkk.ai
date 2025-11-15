@@ -58,7 +58,7 @@ frontend/
 │   └── assessment/        # Assessment components
 ├── lib/
 │   ├── types.ts           # TypeScript interfaces
-│   ├── api.ts             # API client (mock data)
+│   ├── api.ts             # API client (OpenAPI integrated)
 │   └── utils.ts           # Utility functions
 └── public/                # Static assets
 ```
@@ -74,14 +74,41 @@ frontend/
 - **Lucide Icons** - Modern icon set
 - **next-themes** - Dark mode support
 
-## 🔌 Mock Data
+## 🔌 API Integration
 
-The app currently uses mock data for demonstration. Sample assessments included:
+The frontend is fully integrated with the backend API based on the OpenAPI specification.
 
-- **Slack** (Trust Score: 78)
-- **GitHub** (Trust Score: 88)
+### Configuration
 
-Try searching for "Slack" or "GitHub" to see the full assessment reports!
+Set the API base URL using an environment variable:
+
+```bash
+# Create .env.local file
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+If not set, it defaults to `http://localhost:8000`.
+
+### API Endpoints
+
+The following endpoints are integrated:
+
+- `GET /api/v1/health` - Health check
+- `GET /api/v1/assessments` - List all assessments
+- `POST /api/v1/assessments` - Create new assessment
+- `GET /api/v1/assessments/{id}` - Get assessment by ID
+- `DELETE /api/v1/assessments/{id}` - Delete assessment
+- `GET /api/v1/assessments/{id}/status` - Get assessment status
+- `PUT /api/v1/assessments/{id}/report` - Generate report
+- `PUT /api/v1/assessments/{id}/report/export?format={format}` - Export report
+
+### API Client
+
+The API client (`lib/api.ts`) automatically:
+- Maps API responses to frontend types
+- Handles errors gracefully
+- Supports both UUID and integer IDs
+- Provides backward-compatible helper functions
 
 ## 🎯 Key Pages
 
