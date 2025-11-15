@@ -47,6 +47,28 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
   }
+
+  .matrix {
+    --background: 0 0% 0%;
+    --foreground: 120 100% 50%;
+    --card: 0 0% 5%;
+    --card-foreground: 120 100% 50%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 120 100% 50%;
+    --primary: 120 100% 50%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 120 30% 10%;
+    --secondary-foreground: 120 100% 60%;
+    --muted: 120 20% 8%;
+    --muted-foreground: 120 100% 40%;
+    --accent: 120 50% 15%;
+    --accent-foreground: 120 100% 50%;
+    --destructive: 0 100% 40%;
+    --destructive-foreground: 120 100% 50%;
+    --border: 120 100% 30%;
+    --input: 120 100% 20%;
+    --ring: 120 100% 50%;
+  }
 }
 
 @layer base {
@@ -117,4 +139,232 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-primary/70;
+}
+
+/* Matrix Theme Styles */
+.matrix {
+  background-color: #000000 !important;
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 255, 0, 0.03) 0px,
+      transparent 1px,
+      transparent 2px,
+      rgba(0, 255, 0, 0.03) 3px
+    ),
+    radial-gradient(circle at 20% 50%, rgba(0, 255, 0, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 255, 0, 0.05) 0%, transparent 50%);
+  background-attachment: fixed;
+  animation: matrixPulse 4s ease-in-out infinite;
+}
+
+@keyframes matrixPulse {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.05);
+  }
+}
+
+.matrix body {
+  background-color: #000000;
+  color: #00ff00;
+  font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+  position: relative;
+}
+
+.matrix main,
+.matrix nav,
+.matrix [class*="card"],
+.matrix [class*="button"],
+.matrix [class*="input"] {
+  position: relative;
+  z-index: 1;
+}
+
+.matrix .gradient-text {
+  background: linear-gradient(135deg, #00ff00 0%, #00cc00 50%, #00ff00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+  animation: matrixGlow 2s ease-in-out infinite;
+}
+
+/* Matrix theme for hero title */
+.matrix .hero-title {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  -webkit-text-fill-color: #00ff00 !important;
+  color: #00ff00 !important;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+  animation: matrixGlow 2s ease-in-out infinite;
+}
+
+@keyframes matrixGlow {
+  0%, 100% {
+    filter: brightness(1);
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+  }
+  50% {
+    filter: brightness(1.2);
+    text-shadow: 0 0 20px rgba(0, 255, 0, 0.8), 0 0 30px rgba(0, 255, 0, 0.4);
+  }
+}
+
+.matrix .glass {
+  background: rgba(0, 255, 0, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+}
+
+.matrix ::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+.matrix ::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 0, 0.3);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+.matrix ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 0, 0.5);
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
+}
+
+/* Matrix terminal-style borders */
+.matrix [class*="border"],
+.matrix nav,
+.matrix [class*="card"],
+.matrix [class*="dialog"],
+.matrix [class*="popover"] {
+  border-color: rgba(0, 255, 0, 0.3) !important;
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.2);
+}
+
+/* Matrix input glow */
+.matrix input:focus,
+.matrix textarea:focus {
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5), 0 0 20px rgba(0, 255, 0, 0.3);
+  border-color: #00ff00 !important;
+}
+
+/* Matrix button effects */
+.matrix button:hover {
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+}
+
+.matrix button:active {
+  box-shadow: 0 0 25px rgba(0, 255, 0, 0.6);
+}
+
+/* Matrix card glow */
+.matrix [class*="card"] {
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+  border-color: rgba(0, 255, 0, 0.3);
+}
+
+.matrix [class*="card"]:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+}
+
+/* Matrix link effects */
+.matrix a {
+  text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.matrix a:hover {
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.8), 0 0 20px rgba(0, 255, 0, 0.4);
+  color: #00ff88;
+}
+
+/* Matrix selection */
+.matrix ::selection {
+  background: rgba(0, 255, 0, 0.3);
+  color: #00ff00;
+}
+
+.matrix ::-moz-selection {
+  background: rgba(0, 255, 0, 0.3);
+  color: #00ff00;
+}
+
+/* Matrix badge and progress effects */
+.matrix [class*="badge"],
+.matrix [class*="progress"] {
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  border-color: rgba(0, 255, 0, 0.5);
+}
+
+.matrix [class*="progress"] [class*="indicator"] {
+  background: linear-gradient(90deg, #00ff00 0%, #00cc00 100%);
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+}
+
+/* Matrix tab effects */
+.matrix [class*="tab"] {
+  border-color: rgba(0, 255, 0, 0.3);
+}
+
+.matrix [class*="tab"]:hover,
+.matrix [data-state="active"][class*="tab"] {
+  color: #00ff88;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+  border-color: rgba(0, 255, 0, 0.6);
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+}
+
+/* Matrix skeleton loading */
+.matrix [class*="skeleton"] {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 255, 0, 0.1) 0%,
+    rgba(0, 255, 0, 0.2) 50%,
+    rgba(0, 255, 0, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: matrixShimmer 2s ease-in-out infinite;
+}
+
+@keyframes matrixShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Matrix tooltip */
+.matrix [class*="tooltip"] {
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(0, 255, 0, 0.5);
+  color: #00ff00;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+  text-shadow: 0 0 5px rgba(0, 255, 0, 0.8);
+}
+
+/* Matrix separator */
+.matrix [class*="separator"] {
+  background: rgba(0, 255, 0, 0.3);
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+}
+
+/* Matrix dropdown menu */
+.matrix [class*="dropdown-menu"] {
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(0, 255, 0, 0.5);
+  box-shadow: 0 0 30px rgba(0, 255, 0, 0.4);
+}
+
+.matrix [class*="dropdown-menu"] [class*="item"]:hover {
+  background: rgba(0, 255, 0, 0.1);
+  color: #00ff88;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
 }

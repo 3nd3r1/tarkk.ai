@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { AuthProvider } from "@/lib/auth-context";
 import { Navigation } from "@/components/shared/navigation";
+import { ThemeNotification } from "@/components/shared/theme-notification";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,9 +26,11 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
+          themes={["light", "dark", "matrix"]}
         >
           <AuthProvider>
             <Navigation />
+            <ThemeNotification />
             <main className="min-h-screen">
               {children}
             </main>

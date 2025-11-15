@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { Moon, Sun, Shield, Grid3x3, DollarSign, Info, LogIn, Menu, X } from "lucide-react";
+import { Moon, Sun, Grid3x3, DollarSign, Info, LogIn, Menu, X, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { UserMenu } from "@/components/auth/user-menu";
 import { AuthModal } from "@/components/auth/auth-modal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Logo } from "./logo";
 
 export function Navigation() {
   const { theme, setTheme } = useTheme();
@@ -26,7 +33,7 @@ export function Navigation() {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-              <Shield className="h-6 w-6 text-primary" />
+              <Logo size={28} className="text-primary" />
               <span className="gradient-text">Tarkist.us</span>
             </Link>
           </div>
@@ -42,7 +49,7 @@ export function Navigation() {
           <div className="h-16 flex items-center justify-between">
             <div className="flex items-center gap-6">
               <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-                <Shield className="h-6 w-6 text-primary" />
+                <Logo size={28} className="text-primary" />
                 <span className="gradient-text">Tarkist.us</span>
               </Link>
               
@@ -76,18 +83,37 @@ export function Navigation() {
                   <Menu className="h-5 w-5" />
                 )}
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                aria-label="Toggle theme"
-              >
-                {theme === "dark" ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                )}
-              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" aria-label="Select theme">
+                    {theme === "dark" ? (
+                      <Moon className="h-5 w-5" />
+                    ) : theme === "matrix" ? (
+                      <Terminal className="h-5 w-5" />
+                    ) : (
+                      <Sun className="h-5 w-5" />
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setTheme("light")}>
+                    <Sun className="h-4 w-4 mr-2" />
+                    <span>Light</span>
+                    {theme === "light" && <span className="ml-auto">✓</span>}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("dark")}>
+                    <Moon className="h-4 w-4 mr-2" />
+                    <span>Dark</span>
+                    {theme === "dark" && <span className="ml-auto">✓</span>}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("matrix")}>
+                    <Terminal className="h-4 w-4 mr-2" />
+                    <span>Matrix</span>
+                    {theme === "matrix" && <span className="ml-auto">✓</span>}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               {isAuthenticated ? (
                 <UserMenu />

@@ -7,6 +7,7 @@ import { StatsOverview } from "@/components/shared/stats-overview";
 import { RecentAssessments } from "@/components/shared/recent-assessments";
 import { Card, CardContent } from "@/components/ui/card";
 import { WelcomeBanner } from "@/components/shared/welcome-banner";
+import { Logo } from "@/components/shared/logo";
 
 const features = [
   {
@@ -60,19 +61,14 @@ export default function HomePage() {
 
         <div className="container mx-auto px-4 py-20 relative z-10">
           <div className="max-w-5xl mx-auto text-center space-y-8">
-            {/* Animated Shield Icon */}
+            {/* Animated Logo */}
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ duration: 0.8, type: "spring", bounce: 0.5 }}
               className="flex justify-center"
             >
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur-2xl opacity-30 animate-pulse"></div>
-                <div className="relative bg-gradient-to-br from-blue-500 to-purple-600 p-6 rounded-3xl shadow-2xl">
-                  <Shield className="h-16 w-16 text-white" />
-                </div>
-              </div>
+              <Logo size={80} className="text-primary" />
             </motion.div>
 
             {/* Hero Text */}
@@ -83,7 +79,7 @@ export default function HomePage() {
               className="space-y-4"
             >
               <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
-                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent animate-gradient">
+                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent animate-gradient hero-title">
                   Tarkist.us
                 </span>
               </h1>
