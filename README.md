@@ -1,6 +1,8 @@
 <div align="center">
 
-# 🛡️ Tarkist.us
+<img src="frontend/logo.png" alt="Tarkist.us Logo" width="120" height="120" />
+
+# Tarkist.us
 
 ### *Comprehensive Security Assessment Platform*
 
