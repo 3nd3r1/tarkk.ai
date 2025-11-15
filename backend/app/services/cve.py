@@ -1,5 +1,5 @@
-import logging
 from datetime import datetime
+import logging
 from typing import Any
 
 import httpx
@@ -67,7 +67,9 @@ class CVEService:
                 logging.warning(f"API returned 404 for params: {params}")
                 return []  # Return empty list instead of raising error
             elif response.status_code == 403:
-                logging.error("API returned 403 - Rate limited or forbidden. Consider adding API key.")
+                logging.error(
+                    "API returned 403 - Rate limited or forbidden. Consider adding API key."
+                )
                 return []
             elif response.status_code == 503:
                 logging.error("API returned 503 - Service unavailable")
