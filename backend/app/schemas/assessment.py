@@ -2,7 +2,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from pydantic import UUID1, BaseModel, Field
+from pydantic import BaseModel, Field
 
 from app.schemas.entity import Entity
 
@@ -32,7 +32,7 @@ class AssessmentType(str, Enum):
 
 
 class Assessment(BaseModel):
-    id: UUID1 = Field(..., description="The unique identifier for the assessment")
+    id: UUID = Field(..., description="The unique identifier for the assessment")
 
     input_data: AssessmentInputData = Field(
         ..., description="The input data used to generate the assessment"

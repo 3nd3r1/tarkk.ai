@@ -1,6 +1,6 @@
 import logging
 
-from pydantic import UUID1
+from uuid import UUID
 from sqlalchemy.orm import Session
 
 from app.agents.base import AgentError
@@ -55,7 +55,7 @@ class AssessmentService:
 
         return Assessment.from_model(db_assessment)
 
-    async def get_assessment(self, assessment_id: UUID1) -> Assessment | None:
+    async def get_assessment(self, assessment_id: UUID) -> Assessment | None:
         """Fetch assessment from database."""
         db = self._get_db()
 
@@ -69,7 +69,7 @@ class AssessmentService:
         return Assessment.from_model(db_assessment)
 
     async def update_assessment_status(
-        self, assessment_id: UUID1, status: AssessmentStatus
+        self, assessment_id: UUID, status: AssessmentStatus
     ) -> bool:
         """Update assessment status in database."""
         db = self._get_db()
@@ -84,7 +84,7 @@ class AssessmentService:
         db.commit()
         return True
 
-    async def update_assessment_entity(self, assessment_id: UUID1, entity: Entity) -> bool:
+    async def update_assessment_entity(self, assessment_id: UUID, entity: Entity) -> bool:
         """Update assessment entity data in database."""
         db = self._get_db()
 
@@ -98,7 +98,7 @@ class AssessmentService:
         db.commit()
         return True
 
-    async def process_assessment(self, assessment_id: UUID1) -> None:
+    async def process_assessment(self, assessment_id: UUID) -> None:
         """Process the assessment in the background."""
         try:
             logging.info(f"Starting background processing for assessment {assessment_id}")

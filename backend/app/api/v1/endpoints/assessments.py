@@ -1,5 +1,6 @@
 from fastapi import APIRouter, BackgroundTasks, Depends
-from pydantic import UUID1, BaseModel
+from uuid import UUID
+from pydantic import BaseModel
 
 from app.dependencies import get_assessment_service
 from app.schemas.assessment import AssessmentInputData, AssessmentType
@@ -16,7 +17,7 @@ class AssessmentCreateRequest(BaseModel):
 
 
 class AssessmentCreateResponse(BaseModel):
-    assessment_id: UUID1
+    assessment_id: UUID
     status: str
 
 
