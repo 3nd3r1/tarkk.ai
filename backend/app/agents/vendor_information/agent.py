@@ -23,7 +23,7 @@ class VendorInformationAgent(BaseAgent):
     output_model = VendorInformationAgentResponse
 
     def __init__(self, llm_provider: LLMProvider):
-        super().__init__(llm_provider)
+        super().__init__(llm_provider, max_tokens=4096)
 
     async def execute(
         self, input_data: VendorInformationAgentRequest
