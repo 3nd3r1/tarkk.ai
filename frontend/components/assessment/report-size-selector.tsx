@@ -3,7 +3,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ReportSize } from '@/lib/types';
-import { FileText, Clock, Zap, Eye, Maximize } from 'lucide-react';
+import { FileText, Clock, Zap, Eye, Maximize, BookOpen } from 'lucide-react';
 
 interface ReportSizeSelectorProps {
   selectedSize: ReportSize;
@@ -41,6 +41,16 @@ const sizeConfig = {
     textColor: 'text-orange-700 dark:text-orange-300',
     iconColor: 'text-orange-500',
   },
+  enterprise: {
+    label: 'Enterprise',
+    icon: BookOpen,
+    time: '15+ min',
+    description: 'Complete analysis with all technical details',
+    color: 'from-indigo-500 to-purple-500',
+    bgColor: 'bg-indigo-50 dark:bg-indigo-950/20 border-indigo-500',
+    textColor: 'text-indigo-700 dark:text-indigo-300',
+    iconColor: 'text-indigo-500',
+  },
 };
 
 export function ReportSizeSelector({ selectedSize, onSizeChange }: ReportSizeSelectorProps) {
@@ -52,7 +62,7 @@ export function ReportSizeSelector({ selectedSize, onSizeChange }: ReportSizeSel
           <h3 className="font-semibold text-lg">Report Detail Level</h3>
           <Badge variant="secondary" className="ml-auto">
             <Clock className="h-3 w-3 mr-1" />
-            {sizeConfig[selectedSize].time} read
+            {sizeConfig[selectedSize]?.time || 'N/A'} read
           </Badge>
         </div>
         
@@ -60,7 +70,7 @@ export function ReportSizeSelector({ selectedSize, onSizeChange }: ReportSizeSel
           Choose how much detail you want to see in this assessment. You can change this at any time.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
           {(Object.entries(sizeConfig) as [ReportSize, typeof sizeConfig.small][]).map(([size, config]) => {
             const isSelected = selectedSize === size;
             const Icon = config.icon;
@@ -123,7 +133,7 @@ export function ReportSizeSelector({ selectedSize, onSizeChange }: ReportSizeSel
         {/* Feature comparison */}
         <div className="mt-6 pt-6 border-t">
           <h4 className="text-sm font-semibold mb-3">What's Included</h4>
-          <div className="grid grid-cols-3 gap-4 text-xs">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
             <div>
               <div className="font-medium text-blue-600 dark:text-blue-400 mb-2">Small</div>
               <ul className="space-y-1 text-muted-foreground">
@@ -148,6 +158,15 @@ export function ReportSizeSelector({ selectedSize, onSizeChange }: ReportSizeSel
                 <li>• All evidence</li>
                 <li>• Complete history</li>
                 <li>• Technical details</li>
+              </ul>
+            </div>
+            <div>
+              <div className="font-medium text-indigo-600 dark:text-indigo-400 mb-2">Enterprise</div>
+              <ul className="space-y-1 text-muted-foreground">
+                <li>• Everything in Full</li>
+                <li>• Complete audit trail</li>
+                <li>• All citations</li>
+                <li>• Compliance details</li>
               </ul>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { Moon, Sun, Shield, History, GitCompare } from "lucide-react";
+import { Moon, Sun, Shield, GitCompare, DollarSign, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 
@@ -39,13 +39,17 @@ export function Navigation() {
           </Link>
           
           <div className="hidden md:flex items-center gap-4">
-            <Link href="/history" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              <History className="h-4 w-4" />
-              <span>History</span>
-            </Link>
             <Link href="/compare" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
               <GitCompare className="h-4 w-4" />
               <span>Compare</span>
+            </Link>
+            <Link href="/about" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Info className="h-4 w-4" />
+              <span>About</span>
+            </Link>
+            <Link href="/pricing" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <DollarSign className="h-4 w-4" />
+              <span>Pricing</span>
             </Link>
           </div>
         </div>

@@ -421,6 +421,660 @@ const mockAssessments: Assessment[] = [
       { name: 'Bitbucket', vendor: 'Atlassian', trustScore: 83, summary: 'Git solution integrated with Jira', whyBetter: 'Better Atlassian ecosystem integration' }
     ],
     allCitations: []
+  },
+  {
+    id: 'zoom-001',
+    timestamp: '2024-11-12T09:15:00Z',
+    cached: false,
+    product: {
+      name: 'Zoom',
+      vendor: 'Zoom Video Communications',
+      category: 'Video Conferencing',
+      description: 'Video conferencing and online meeting platform with screen sharing, recording, and collaboration features.',
+      usage: 'Video meetings, webinars, virtual events, team collaboration',
+      website: 'https://zoom.us',
+      logo: '📹'
+    },
+    trustScore: {
+      score: 72,
+      rationale: 'Improved security posture post-2020, but concerns remain around end-to-end encryption implementation and data privacy practices.',
+      confidence: 82
+    },
+    vendorInfo: {
+      companyName: 'Zoom Video Communications',
+      headquarters: 'San Jose, CA, USA',
+      jurisdiction: 'United States',
+      founded: 2011,
+      reputation: {
+        score: 75,
+        summary: 'Popular video platform that faced security scrutiny in 2020, has since improved practices significantly.',
+        sources: []
+      },
+      securityTrackRecord: 'Mixed. Significant issues in 2020 (Zoombombing, encryption claims), but major improvements since then.',
+      psirtPage: 'https://explore.zoom.us/en/trust/security/'
+    },
+    platformSupport: {
+      platforms: [
+        { name: 'macOS', supported: true, versions: '10.10+' },
+        { name: 'Windows', supported: true, versions: '7+' },
+        { name: 'Linux', supported: true },
+        { name: 'iOS', supported: true, versions: '12.0+' },
+        { name: 'Android', supported: true, versions: '5.0+' },
+        { name: 'Web', supported: true }
+      ]
+    },
+    dataHandling: {
+      storage: {
+        location: 'Multiple cloud providers',
+        regions: ['US', 'EU', 'APAC'],
+        cloudProvider: 'AWS, Oracle Cloud',
+        encryptionAtRest: true
+      },
+      transmission: {
+        endpoints: ['zoom.us', 'zoom.com'],
+        subProcessors: ['AWS', 'Oracle'],
+        encryptionInTransit: { tls: 'TLS 1.2+', certVerified: true }
+      },
+      usage: {
+        analytics: true,
+        advertising: false,
+        aiTraining: true,
+        retentionPolicy: 'Recording retention configurable',
+        userCanDelete: true
+      }
+    },
+    permissions: {
+      required: [
+        { name: 'Camera', riskLevel: 'medium', justification: 'Video calls' },
+        { name: 'Microphone', riskLevel: 'medium', justification: 'Audio calls' },
+        { name: 'Screen Recording', riskLevel: 'high', justification: 'Screen sharing' }
+      ],
+      optional: [],
+      overPermissioningRisk: 'High permissions required for core functionality'
+    },
+    adminControls: {
+      sso: true,
+      mfa: true,
+      rbac: true,
+      scim: true,
+      auditLogs: true,
+      dataExport: true
+    },
+    vulnerabilities: {
+      cveCount: 15,
+      trendData: Array(12).fill(0).map((_, i) => ({ month: `2024-${String(i + 1).padStart(2, '0')}`, count: Math.floor(Math.random() * 3) })),
+      severityBreakdown: {
+        critical: 1,
+        high: 4,
+        medium: 7,
+        low: 3
+      },
+      recentCVEs: [
+        {
+          id: 'CVE-2024-45678',
+          cvss: 7.5,
+          severity: 'High',
+          description: 'Authentication bypass in Zoom client',
+          publishedDate: '2024-09-15',
+          patched: true
+        }
+      ],
+      cisaKEV: false
+    },
+    releaseLifecycle: {
+      latestVersion: '5.17.5',
+      releaseFrequency: 'Monthly updates',
+      patchCadence: 'Critical patches within 72h',
+      eolDates: [],
+      ltsVersions: [],
+      versionHistory: []
+    },
+    aiFeatures: {
+      hasAI: true,
+      features: [
+        { name: 'AI Companion', description: 'Meeting summaries and action items', dataAccess: ['meeting transcripts', 'chat'] }
+      ],
+      dataUsedForTraining: true,
+      canOptOut: true,
+      processingLocation: 'cloud'
+    },
+    incidents: {
+      count: 3,
+      timeline: [
+        {
+          date: '2020-04-01',
+          title: 'Zoombombing Incidents',
+          severity: 'High',
+          description: 'Unauthorized users joining meetings',
+          impact: 'Privacy and security concerns',
+          resolution: 'Improved default security settings',
+          sources: []
+        }
+      ]
+    },
+    compliance: {
+      certifications: ['SOC 2', 'ISO 27001', 'HIPAA', 'GDPR Compliant'],
+      dataHandlingSummary: 'Good data protection with regional storage options',
+      dpa: true,
+      sources: []
+    },
+    sources: {
+      public: { count: 42, types: [{ type: 'Vendor Documentation', count: 20 }, { type: 'Security Research', count: 22 }] },
+      confidential: { count: 2, types: [{ type: 'Internal Testing', count: 2 }] }
+    },
+    alternatives: [
+      { name: 'Microsoft Teams', vendor: 'Microsoft', trustScore: 85, summary: 'Enterprise communication platform' }
+    ],
+    allCitations: []
+  },
+  {
+    id: 'notion-001',
+    timestamp: '2024-11-10T14:30:00Z',
+    cached: true,
+    product: {
+      name: 'Notion',
+      vendor: 'Notion Labs',
+      category: 'Productivity',
+      description: 'All-in-one workspace for notes, tasks, wikis, and databases with collaborative features.',
+      usage: 'Documentation, project management, knowledge base, personal notes',
+      website: 'https://notion.so',
+      logo: '📝'
+    },
+    trustScore: {
+      score: 68,
+      rationale: 'Growing platform with improving security, but limited enterprise controls and encryption concerns.',
+      confidence: 78
+    },
+    vendorInfo: {
+      companyName: 'Notion Labs Inc.',
+      headquarters: 'San Francisco, CA, USA',
+      jurisdiction: 'United States',
+      founded: 2016,
+      reputation: {
+        score: 72,
+        summary: 'Popular productivity tool with strong user base, improving enterprise features.',
+        sources: []
+      },
+      securityTrackRecord: 'Good. No major security incidents reported.',
+      psirtPage: 'https://www.notion.so/security'
+    },
+    platformSupport: {
+      platforms: [
+        { name: 'macOS', supported: true },
+        { name: 'Windows', supported: true },
+        { name: 'Linux', supported: false },
+        { name: 'iOS', supported: true },
+        { name: 'Android', supported: true },
+        { name: 'Web', supported: true }
+      ]
+    },
+    dataHandling: {
+      storage: {
+        location: 'AWS (US)',
+        regions: ['US'],
+        cloudProvider: 'AWS',
+        encryptionAtRest: true
+      },
+      transmission: {
+        endpoints: ['notion.so', 'notion.site'],
+        subProcessors: ['AWS'],
+        encryptionInTransit: { tls: 'TLS 1.3', certVerified: true }
+      },
+      usage: {
+        analytics: true,
+        advertising: false,
+        aiTraining: false,
+        retentionPolicy: 'Indefinite (user-controlled)',
+        userCanDelete: true
+      }
+    },
+    permissions: {
+      required: [
+        { name: 'Internet Access', riskLevel: 'low', justification: 'Cloud sync' }
+      ],
+      optional: [
+        { name: 'File System', riskLevel: 'medium', justification: 'File attachments' }
+      ]
+    },
+    adminControls: {
+      sso: true,
+      mfa: true,
+      rbac: true,
+      scim: true,
+      auditLogs: false,
+      dataExport: true
+    },
+    vulnerabilities: {
+      cveCount: 3,
+      trendData: Array(12).fill(0).map((_, i) => ({ month: `2024-${String(i + 1).padStart(2, '0')}`, count: i % 4 === 0 ? 1 : 0 })),
+      severityBreakdown: {
+        critical: 0,
+        high: 1,
+        medium: 1,
+        low: 1
+      },
+      recentCVEs: [],
+      cisaKEV: false
+    },
+    releaseLifecycle: {
+      latestVersion: 'N/A (SaaS)',
+      releaseFrequency: 'Continuous',
+      patchCadence: 'Immediate',
+      eolDates: [],
+      ltsVersions: [],
+      versionHistory: []
+    },
+    aiFeatures: {
+      hasAI: true,
+      features: [
+        { name: 'Notion AI', description: 'Writing assistance and content generation', dataAccess: ['page content'] }
+      ],
+      dataUsedForTraining: false,
+      canOptOut: true,
+      processingLocation: 'cloud'
+    },
+    incidents: {
+      count: 0,
+      timeline: []
+    },
+    compliance: {
+      certifications: ['SOC 2 Type II', 'GDPR Compliant'],
+      dataHandlingSummary: 'Good data protection for a growing platform',
+      dpa: true,
+      sources: []
+    },
+    sources: {
+      public: { count: 28, types: [{ type: 'Vendor Documentation', count: 15 }, { type: 'User Reviews', count: 13 }] },
+      confidential: { count: 1, types: [{ type: 'Internal Testing', count: 1 }] }
+    },
+    alternatives: [
+      { name: 'Confluence', vendor: 'Atlassian', trustScore: 82, summary: 'Enterprise wiki and collaboration' }
+    ],
+    allCitations: []
+  },
+  {
+    id: 'vscode-001',
+    timestamp: '2024-11-08T11:00:00Z',
+    cached: true,
+    product: {
+      name: 'Visual Studio Code',
+      vendor: 'Microsoft',
+      category: 'Developer Tools',
+      description: 'Free, open-source code editor with debugging, Git integration, and extensions marketplace.',
+      usage: 'Software development, code editing, debugging, version control',
+      website: 'https://code.visualstudio.com',
+      logo: '💻'
+    },
+    trustScore: {
+      score: 92,
+      rationale: 'Excellent open-source tool with strong security practices, backed by Microsoft with transparent development.',
+      confidence: 95
+    },
+    vendorInfo: {
+      companyName: 'Microsoft Corporation',
+      headquarters: 'Redmond, WA, USA',
+      jurisdiction: 'United States',
+      founded: 1975,
+      reputation: {
+        score: 92,
+        summary: 'Global technology leader with strong security practices and significant open-source contributions.',
+        sources: []
+      },
+      securityTrackRecord: 'Excellent. Transparent vulnerability disclosure and rapid patching.',
+      psirtPage: 'https://www.microsoft.com/en-us/msrc'
+    },
+    platformSupport: {
+      platforms: [
+        { name: 'macOS', supported: true },
+        { name: 'Windows', supported: true },
+        { name: 'Linux', supported: true },
+        { name: 'iOS', supported: false },
+        { name: 'Android', supported: false },
+        { name: 'Web', supported: true }
+      ]
+    },
+    dataHandling: {
+      storage: {
+        location: 'Local + Optional Cloud (Azure)',
+        regions: ['Local', 'US', 'EU'],
+        cloudProvider: 'Azure (optional)',
+        encryptionAtRest: true
+      },
+      transmission: {
+        endpoints: ['vscode.dev', 'marketplace.visualstudio.com'],
+        subProcessors: ['Azure'],
+        encryptionInTransit: { tls: 'TLS 1.3', certVerified: true }
+      },
+      usage: {
+        analytics: true,
+        advertising: false,
+        aiTraining: false,
+        retentionPolicy: 'Configurable',
+        userCanDelete: true
+      }
+    },
+    permissions: {
+      required: [
+        { name: 'File System', riskLevel: 'high', justification: 'Code editing and project access' }
+      ],
+      optional: [
+        { name: 'Internet Access', riskLevel: 'low', justification: 'Extension marketplace' }
+      ]
+    },
+    adminControls: {
+      sso: false,
+      mfa: false,
+      rbac: false,
+      scim: false,
+      auditLogs: false,
+      dataExport: true
+    },
+    vulnerabilities: {
+      cveCount: 8,
+      trendData: Array(12).fill(0).map((_, i) => ({ month: `2024-${String(i + 1).padStart(2, '0')}`, count: i % 3 === 0 ? 1 : 0 })),
+      severityBreakdown: {
+        critical: 0,
+        high: 2,
+        medium: 4,
+        low: 2
+      },
+      recentCVEs: [],
+      cisaKEV: false
+    },
+    releaseLifecycle: {
+      latestVersion: '1.94.2',
+      releaseFrequency: 'Monthly',
+      patchCadence: 'Immediate for critical',
+      eolDates: [],
+      ltsVersions: [],
+      versionHistory: []
+    },
+    aiFeatures: {
+      hasAI: true,
+      features: [
+        { name: 'GitHub Copilot Integration', description: 'AI code completion (extension)', dataAccess: ['code context'] }
+      ],
+      dataUsedForTraining: false,
+      canOptOut: true,
+      processingLocation: 'cloud'
+    },
+    incidents: {
+      count: 0,
+      timeline: []
+    },
+    compliance: {
+      certifications: [],
+      dataHandlingSummary: 'Primarily local data storage with optional cloud sync',
+      dpa: false,
+      sources: []
+    },
+    sources: {
+      public: { count: 85, types: [{ type: 'GitHub Repository', count: 40 }, { type: 'Documentation', count: 45 }] },
+      confidential: { count: 0, types: [] }
+    },
+    alternatives: [
+      { name: 'IntelliJ IDEA', vendor: 'JetBrains', trustScore: 90, summary: 'Powerful IDE with strong refactoring' }
+    ],
+    allCitations: []
+  },
+  {
+    id: 'dropbox-001',
+    timestamp: '2024-11-07T16:45:00Z',
+    cached: false,
+    product: {
+      name: 'Dropbox',
+      vendor: 'Dropbox Inc.',
+      category: 'Cloud Storage',
+      description: 'Cloud file storage and synchronization service with sharing and collaboration features.',
+      usage: 'File backup, sharing, collaboration, cloud storage',
+      website: 'https://dropbox.com',
+      logo: '📦'
+    },
+    trustScore: {
+      score: 81,
+      rationale: 'Mature cloud storage with strong security track record and enterprise features, though encryption key management could be improved.',
+      confidence: 88
+    },
+    vendorInfo: {
+      companyName: 'Dropbox Inc.',
+      headquarters: 'San Francisco, CA, USA',
+      jurisdiction: 'United States',
+      founded: 2007,
+      reputation: {
+        score: 84,
+        summary: 'Established cloud storage provider with strong reputation and security practices.',
+        sources: []
+      },
+      securityTrackRecord: 'Good. One significant breach in 2012, improved security since then.',
+      psirtPage: 'https://www.dropbox.com/security'
+    },
+    platformSupport: {
+      platforms: [
+        { name: 'macOS', supported: true },
+        { name: 'Windows', supported: true },
+        { name: 'Linux', supported: true },
+        { name: 'iOS', supported: true },
+        { name: 'Android', supported: true },
+        { name: 'Web', supported: true }
+      ]
+    },
+    dataHandling: {
+      storage: {
+        location: 'AWS + Custom Infrastructure',
+        regions: ['US', 'EU', 'APAC'],
+        cloudProvider: 'AWS + Dropbox Infrastructure',
+        encryptionAtRest: true
+      },
+      transmission: {
+        endpoints: ['dropbox.com', 'dropboxapi.com'],
+        subProcessors: ['AWS'],
+        encryptionInTransit: { tls: 'TLS 1.3', certVerified: true }
+      },
+      usage: {
+        analytics: true,
+        advertising: false,
+        aiTraining: false,
+        retentionPolicy: 'Indefinite until deletion',
+        userCanDelete: true
+      }
+    },
+    permissions: {
+      required: [
+        { name: 'File System', riskLevel: 'high', justification: 'File sync and storage' },
+        { name: 'Internet Access', riskLevel: 'low', justification: 'Cloud sync' }
+      ],
+      optional: [
+        { name: 'Camera', riskLevel: 'medium', justification: 'Document scanning' }
+      ]
+    },
+    adminControls: {
+      sso: true,
+      mfa: true,
+      rbac: true,
+      scim: true,
+      auditLogs: true,
+      dataExport: true
+    },
+    vulnerabilities: {
+      cveCount: 5,
+      trendData: Array(12).fill(0).map((_, i) => ({ month: `2024-${String(i + 1).padStart(2, '0')}`, count: i % 5 === 0 ? 1 : 0 })),
+      severityBreakdown: {
+        critical: 0,
+        high: 1,
+        medium: 3,
+        low: 1
+      },
+      recentCVEs: [],
+      cisaKEV: false
+    },
+    releaseLifecycle: {
+      latestVersion: 'Various by platform',
+      releaseFrequency: 'Regular updates',
+      patchCadence: 'Rapid',
+      eolDates: [],
+      ltsVersions: [],
+      versionHistory: []
+    },
+    aiFeatures: {
+      hasAI: true,
+      features: [
+        { name: 'Dropbox Dash', description: 'AI-powered universal search', dataAccess: ['file metadata', 'content'] }
+      ],
+      dataUsedForTraining: false,
+      canOptOut: true,
+      processingLocation: 'cloud'
+    },
+    incidents: {
+      count: 2,
+      timeline: [
+        {
+          date: '2012-07-01',
+          title: 'Password Breach',
+          severity: 'High',
+          description: 'Over 68 million user credentials stolen',
+          impact: 'Passwords exposed',
+          resolution: 'Forced password resets, improved security',
+          sources: []
+        }
+      ]
+    },
+    compliance: {
+      certifications: ['SOC 2', 'ISO 27001', 'GDPR Compliant', 'HIPAA'],
+      dataHandlingSummary: 'Enterprise-grade security with comprehensive compliance',
+      dpa: true,
+      sources: []
+    },
+    sources: {
+      public: { count: 56, types: [{ type: 'Vendor Documentation', count: 30 }, { type: 'Security Research', count: 26 }] },
+      confidential: { count: 2, types: [{ type: 'Internal Testing', count: 2 }] }
+    },
+    alternatives: [
+      { name: 'Google Drive', vendor: 'Google', trustScore: 83, summary: 'Cloud storage with Google Workspace integration' }
+    ],
+    allCitations: []
+  },
+  {
+    id: 'figma-001',
+    timestamp: '2024-11-05T13:20:00Z',
+    cached: false,
+    product: {
+      name: 'Figma',
+      vendor: 'Figma Inc. (Adobe)',
+      category: 'Design Tools',
+      description: 'Collaborative design tool for UI/UX design, prototyping, and design systems.',
+      usage: 'Interface design, prototyping, design collaboration, design systems',
+      website: 'https://figma.com',
+      logo: '🎨'
+    },
+    trustScore: {
+      score: 76,
+      rationale: 'Strong design platform with good security practices, though cloud-only nature raises data control concerns.',
+      confidence: 80
+    },
+    vendorInfo: {
+      companyName: 'Figma Inc. (Adobe Inc.)',
+      headquarters: 'San Francisco, CA, USA',
+      jurisdiction: 'United States',
+      founded: 2012,
+      reputation: {
+        score: 80,
+        summary: 'Leading design platform acquired by Adobe in 2023, strong innovation and user satisfaction.',
+        sources: []
+      },
+      securityTrackRecord: 'Good. No major security incidents.',
+      psirtPage: 'https://www.figma.com/security/'
+    },
+    platformSupport: {
+      platforms: [
+        { name: 'macOS', supported: true },
+        { name: 'Windows', supported: true },
+        { name: 'Linux', supported: false },
+        { name: 'iOS', supported: true },
+        { name: 'Android', supported: true },
+        { name: 'Web', supported: true }
+      ]
+    },
+    dataHandling: {
+      storage: {
+        location: 'AWS (US)',
+        regions: ['US'],
+        cloudProvider: 'AWS',
+        encryptionAtRest: true
+      },
+      transmission: {
+        endpoints: ['figma.com', 'figma-alpha.com'],
+        subProcessors: ['AWS', 'Cloudflare'],
+        encryptionInTransit: { tls: 'TLS 1.3', certVerified: true }
+      },
+      usage: {
+        analytics: true,
+        advertising: false,
+        aiTraining: false,
+        retentionPolicy: 'Indefinite',
+        userCanDelete: true
+      }
+    },
+    permissions: {
+      required: [
+        { name: 'Internet Access', riskLevel: 'low', justification: 'Cloud-based platform' }
+      ],
+      optional: [
+        { name: 'Clipboard', riskLevel: 'low', justification: 'Copy/paste functionality' }
+      ]
+    },
+    adminControls: {
+      sso: true,
+      mfa: true,
+      rbac: true,
+      scim: true,
+      auditLogs: true,
+      dataExport: true
+    },
+    vulnerabilities: {
+      cveCount: 4,
+      trendData: Array(12).fill(0).map((_, i) => ({ month: `2024-${String(i + 1).padStart(2, '0')}`, count: i % 6 === 0 ? 1 : 0 })),
+      severityBreakdown: {
+        critical: 0,
+        high: 1,
+        medium: 2,
+        low: 1
+      },
+      recentCVEs: [],
+      cisaKEV: false
+    },
+    releaseLifecycle: {
+      latestVersion: 'N/A (SaaS)',
+      releaseFrequency: 'Continuous',
+      patchCadence: 'Immediate',
+      eolDates: [],
+      ltsVersions: [],
+      versionHistory: []
+    },
+    aiFeatures: {
+      hasAI: false,
+      features: [],
+      dataUsedForTraining: false,
+      canOptOut: true,
+      processingLocation: 'local'
+    },
+    incidents: {
+      count: 0,
+      timeline: []
+    },
+    compliance: {
+      certifications: ['SOC 2 Type II', 'GDPR Compliant'],
+      dataHandlingSummary: 'Strong data protection with enterprise features',
+      dpa: true,
+      sources: []
+    },
+    sources: {
+      public: { count: 38, types: [{ type: 'Vendor Documentation', count: 25 }, { type: 'User Community', count: 13 }] },
+      confidential: { count: 1, types: [{ type: 'Internal Testing', count: 1 }] }
+    },
+    alternatives: [
+      { name: 'Adobe XD', vendor: 'Adobe', trustScore: 82, summary: 'Adobe design and prototyping tool' }
+    ],
+    allCitations: []
   }
 ];
 

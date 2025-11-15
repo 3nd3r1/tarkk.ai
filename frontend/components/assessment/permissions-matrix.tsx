@@ -2,11 +2,22 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Assessment } from '@/lib/types';
-import { Shield, AlertTriangle, CheckCircle, Info, Lock } from 'lucide-react';
+import { AlertTriangle, Info, CheckCircle, Shield, Lock } from 'lucide-react';
 
 interface PermissionsMatrixProps {
-  permissions: Assessment['permissions'];
+  permissions: {
+    required: Array<{
+      name: string;
+      riskLevel: 'low' | 'medium' | 'high';
+      justification: string;
+    }>;
+    optional: Array<{
+      name: string;
+      riskLevel: 'low' | 'medium' | 'high';
+      justification: string;
+    }>;
+    overPermissioningRisk?: string;
+  };
   reportSize?: 'small' | 'medium' | 'full';
 }
 
@@ -110,7 +121,6 @@ export function PermissionsMatrix({ permissions, reportSize = 'medium' }: Permis
                 <div
                   key={index}
                   className={`p-4 rounded-lg border-l-4 transition-all duration-200 hover:shadow-md ${config.color}`}
-                  style={{ borderLeftColor: `var(--${permission.riskLevel})` }}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
