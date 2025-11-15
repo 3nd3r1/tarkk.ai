@@ -5,6 +5,7 @@
 pkgs.mkShell {
   buildInputs = with pkgs; [
     python311
+    python311Packages.google-generativeai
     gnumake
   ];
 
