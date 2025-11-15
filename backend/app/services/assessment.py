@@ -1,6 +1,6 @@
 import logging
-
 from uuid import UUID
+
 from sqlalchemy.orm import Session
 
 from app.agents.base import AgentError
@@ -68,9 +68,7 @@ class AssessmentService:
 
         return Assessment.from_model(db_assessment)
 
-    async def update_assessment_status(
-        self, assessment_id: UUID, status: AssessmentStatus
-    ) -> bool:
+    async def update_assessment_status(self, assessment_id: UUID, status: AssessmentStatus) -> bool:
         """Update assessment status in database."""
         db = self._get_db()
 
