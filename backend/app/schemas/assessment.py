@@ -13,6 +13,13 @@ class AssessmentInputData(BaseModel):
     url: str | None = None
 
 
+class AssessmentStatus(str, Enum):
+    QUEUED = "queued"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
 class AssessmentType(str, Enum):
     SMALL = "small"
     MEDIUM = "medium"
@@ -25,6 +32,10 @@ class Assessment(BaseModel):
     input_data: AssessmentInputData = Field(
         ..., description="The input data used to generate the assessment"
     )
+
     assessment_type: AssessmentType = Field(..., description="The type of assessment performed")
+    assessment_status: AssessmentStatus = Field(
+        ..., description="The current status of the assessment"
+    )
 
     entity: Entity | None = None
