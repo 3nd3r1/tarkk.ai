@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, ExternalLink, Shield, Building2, Calendar } from "lucide-react";
+import { ArrowLeft, ExternalLink, Shield, Building2, Calendar, Download } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Assessment, ReportSize } from "@/lib/types";
 import { getAssessment } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
+import { generatePDFReport, shouldShowSection, getReportConfig } from "@/lib/pdf-generator";
 
 // Import all assessment components
 import { TrustScoreCircle } from "@/components/assessment/trust-score-circle";
@@ -35,6 +36,7 @@ export default function AssessmentPage() {
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [reportSize, setReportSize] = useState<ReportSize>('medium');
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   useEffect(() => {
     const fetchAssessment = async () => {
@@ -47,6 +49,23 @@ export default function AssessmentPage() {
 
     fetchAssessment();
   }, [params.id]);
+
+  const handleDownloadPDF = async () => {
+    if (!assessment) return;
+    
+    setIsGeneratingPDF(true);
+    try {
+      await generatePDFReport(assessment, reportSize);
+    } catch (error) {
+      console.error('Failed to generate PDF:', error);
+      alert('Failed to generate PDF report. Please try again.');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
+  // Get report configuration for current size
+  const reportConfig = getReportConfig(reportSize);
 
   if (isLoading) {
     return (
@@ -126,16 +145,59 @@ export default function AssessmentPage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-6">
-          {/* Report Size Selector */}
+          {/* Report Size Selector with Download Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
+            className="space-y-4"
           >
-            <ReportSizeSelector 
-              currentSize={reportSize} 
-              onSizeChange={setReportSize} 
-            />
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="flex-1">
+                <ReportSizeSelector 
+                  currentSize={reportSize} 
+                  onSizeChange={setReportSize} 
+                />
+              </div>
+              <div className="flex items-center">
+                <Button 
+                  onClick={handleDownloadPDF}
+                  disabled={isGeneratingPDF}
+                  size="lg"
+                  className="w-full lg:w-auto"
+                >
+                  {isGeneratingPDF ? (
+                    <>
+                      <div className="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                      Generating PDF...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="mr-2 h-5 w-5" />
+                      Download {reportSize.charAt(0).toUpperCase() + reportSize.slice(1)} Report
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+            
+            {/* Report Size Information */}
+            <Card className="bg-muted/30">
+              <CardContent className="pt-4">
+                <div className="flex items-start gap-3">
+                  <div className="text-2xl">ℹ️</div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold mb-1">About {reportSize.charAt(0).toUpperCase() + reportSize.slice(1)} Reports</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {reportSize === 'small' && 'Executive summary with key findings, trust score, and high-level overview. Perfect for quick decision-making.'}
+                      {reportSize === 'medium' && 'Balanced report with security posture, vulnerabilities, and essential metrics. Ideal for technical teams.'}
+                      {reportSize === 'full' && 'Comprehensive deep dive including data privacy, technical details, compliance, and sources. Recommended for security audits.'}
+                      {reportSize === 'enterprise' && 'Complete analysis with all available data, detailed metrics, full incident history, and extensive citations. Designed for enterprise compliance and risk assessment.'}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </motion.div>
 
           {/* Trust Score Rationale */}
@@ -254,7 +316,7 @@ export default function AssessmentPage() {
               {/* Tab 2: Security Posture - §4 Admin Controls, §11 Incidents */}
               <TabsContent value="security" className="space-y-6">
                 {/* Security Radar Chart */}
-                <SecurityRadarChart assessment={assessment} />
+                <SecurityRadarChart />
 
                 {/* Admin Controls */}
                 <Card>
@@ -294,7 +356,11 @@ export default function AssessmentPage() {
                 </Card>
 
                 {/* Incidents Timeline */}
-                <IncidentTimeline incidents={assessment.incidents.timeline} />
+                {shouldShowSection('security', reportSize) && (
+                  <IncidentTimeline 
+                    incidents={assessment.incidents.timeline.slice(0, reportConfig.incidentLimit)} 
+                  />
+                )}
               </TabsContent>
 
               {/* Tab 3: Vulnerabilities - §8 CVE Analysis */}
@@ -326,7 +392,7 @@ export default function AssessmentPage() {
                       <div className="mt-4">
                         <h4 className="font-semibold mb-3">Recent Vulnerabilities</h4>
                         <div className="space-y-2">
-                          {assessment.vulnerabilities.recentCVEs.slice(0, reportSize === 'full' ? 10 : 3).map((cve) => (
+                          {assessment.vulnerabilities.recentCVEs.slice(0, reportConfig.cveLimit).map((cve) => (
                             <div key={cve.id} className="border rounded-lg p-3">
                               <div className="flex items-start justify-between">
                                 <div>
@@ -356,7 +422,7 @@ export default function AssessmentPage() {
 
                 {/* CVE Charts */}
                 <CVETrendChart 
-                  trendData={assessment.vulnerabilities.trendData} 
+                  data={assessment.vulnerabilities.trendData} 
                   totalCVEs={assessment.vulnerabilities.cveCount}
                 />
                 
@@ -367,18 +433,56 @@ export default function AssessmentPage() {
 
               {/* Tab 4: Data & Privacy - §6 Data Handling, §7 Permissions */}
               <TabsContent value="privacy" className="space-y-6">
-                <DataHandlingFlowchart dataHandling={assessment.dataHandling} />
-                <PermissionsMatrix permissions={assessment.permissions} />
+                {shouldShowSection('privacy', reportSize) ? (
+                  <>
+                    <DataHandlingFlowchart dataHandling={assessment.dataHandling} />
+                    <PermissionsMatrix permissions={assessment.permissions} />
+                  </>
+                ) : (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Data & Privacy</CardTitle>
+                      <CardDescription>Available in Full and Enterprise reports</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">
+                        Upgrade to Full or Enterprise report size to view detailed data handling practices and permissions analysis.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
               </TabsContent>
 
               {/* Tab 5: Technical - §9 Release Lifecycle, §10 AI Features */}
               <TabsContent value="technical" className="space-y-6">
-                <ReleaseLifecycleTimeline releaseLifecycle={assessment.releaseLifecycle} />
-                <AIFeaturesBreakdown aiFeatures={assessment.aiFeatures} />
+                {shouldShowSection('technical', reportSize) ? (
+                  <>
+                    <ReleaseLifecycleTimeline 
+                      releaseLifecycle={{
+                        ...assessment.releaseLifecycle,
+                        versionHistory: assessment.releaseLifecycle.versionHistory.slice(0, reportConfig.versionHistoryLimit)
+                      }} 
+                    />
+                    <AIFeaturesBreakdown aiFeatures={assessment.aiFeatures} />
+                  </>
+                ) : (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Technical Details</CardTitle>
+                      <CardDescription>Available in Medium reports and above</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">
+                        Upgrade to Medium, Full, or Enterprise report size to view technical details including release lifecycle and AI features analysis.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
               </TabsContent>
 
               {/* Tab 6: Compliance - §12 Certifications */}
               <TabsContent value="compliance" className="space-y-6">
+                {shouldShowSection('compliance', reportSize) ? (
                 <Card>
                   <CardHeader>
                     <CardTitle>Compliance & Certifications</CardTitle>
@@ -418,7 +522,7 @@ export default function AssessmentPage() {
                     </div>
 
                     {/* Sources */}
-                    {reportSize === 'full' && assessment.compliance.sources.length > 0 && (
+                    {shouldShowSection('sources', reportSize) && reportConfig.showDetailedMetrics && assessment.compliance.sources.length > 0 && (
                       <div>
                         <h4 className="font-semibold mb-2">Compliance Sources</h4>
                         <div className="space-y-2">
@@ -435,19 +539,60 @@ export default function AssessmentPage() {
                     )}
                   </CardContent>
                 </Card>
+                ) : (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Compliance & Certifications</CardTitle>
+                      <CardDescription>Available in Full and Enterprise reports</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">
+                        Upgrade to Full or Enterprise report size to view compliance certifications and regulatory information.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
               </TabsContent>
 
               {/* Tab 7: Sources - §3 Information Sources */}
               <TabsContent value="sources" className="space-y-6">
-                <SourcesBreakdown sources={assessment.sources} />
+                {shouldShowSection('sources', reportSize) ? (
+                  <SourcesBreakdown sources={assessment.sources} />
+                ) : (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Information Sources</CardTitle>
+                      <CardDescription>Available in Full and Enterprise reports</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">
+                        Upgrade to Full or Enterprise report size to view detailed source attribution and transparency information.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
               </TabsContent>
 
               {/* Tab 8: Alternatives - Recommendations */}
               <TabsContent value="alternatives" className="space-y-6">
-                <AlternativesList 
-                  alternatives={assessment.alternatives} 
-                  currentScore={assessment.trustScore.score}
-                />
+                {shouldShowSection('overview', reportSize) ? (
+                  <AlternativesList 
+                    alternatives={assessment.alternatives} 
+                    currentScore={assessment.trustScore.score}
+                  />
+                ) : (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Alternative Products</CardTitle>
+                      <CardDescription>Available in Medium reports and above</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">
+                        Upgrade to Medium, Full, or Enterprise report size to view recommended alternative products.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
               </TabsContent>
             </Tabs>
           </motion.div>
