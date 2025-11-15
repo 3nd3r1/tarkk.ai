@@ -1,16 +1,30 @@
+from enum import Enum
+
 from pydantic import UUID1, BaseModel, Field
 
 from app.schemas.entity import Entity
 
 
-class AssesmentInputData(BaseModel):
+class AssessmentInputData(BaseModel):
     """Schema representing the input data for generating an assessment."""
 
     name: str = Field(..., description="The name of the product")
     vendor_name: str = Field(..., description="The name of the vendor")
-    url: str | None = Field(None, description="The product's website URL")
+    url: str | None = None
 
 
-class Assesment(BaseModel):
+class AssessmentType(str, Enum):
+    SMALL = "small"
+    MEDIUM = "medium"
+    LARGE = "large"
+
+
+class Assessment(BaseModel):
     id: UUID1 = Field(..., description="The unique identifier for the assessment")
-    entity: Entity = Field(..., description="The entity being assessed")
+
+    input_data: AssessmentInputData = Field(
+        ..., description="The input data used to generate the assessment"
+    )
+    assessment_type: AssessmentType = Field(..., description="The type of assessment performed")
+
+    entity: Entity | None = None
