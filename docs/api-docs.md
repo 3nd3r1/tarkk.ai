@@ -23,8 +23,6 @@
 
 - `POST /compare` - Compare apps
 
----
-
 ## POST /assessments
 
 **Request:**
@@ -48,8 +46,6 @@
 }
 ```
 
----
-
 ## GET /assessments/{id}/status
 
 **Response:**
@@ -64,321 +60,17 @@
 }
 ```
 
----
-
 ## GET /assessments/{id}
 
 **Response:**
 
-```json
-{
-  "assessment_id": "uuid-1234-5678",
-  "status": "completed",
-  "created_at": "2025-11-15T10:30:00Z",
-  "completed_at": "2025-11-15T10:32:00Z",
-  "input": {
-    "original_input": "Slack",
-    "input_type": "name",
-    "report_type": "medium"
-  },
-  "entity": {
-    "app_name": "Slack",
-    "vendor_name": "Slack Technologies, LLC",
-    "official_url": "https://slack.com",
-    "category": "Team Collaboration",
-    "taxonomy": "SaaS Communication Platform",
-    "aliases": ["Slack Workspace", "Slack Enterprise Grid"]
-  },
-  "vendor_information": {
-    "company_name": "Slack Technologies, LLC",
-    "parent_company": "Salesforce, Inc.",
-    "headquarters": "San Francisco, CA, USA",
-    "country": "United States",
-    "founded": "2013",
-    "employee_count": "2,500+",
-    "public_private": "public",
-    "stock_ticker": "CRM (Salesforce)",
-    "reputation_score": 85,
-    "sources": [
-      {
-        "type": "vendor_stated",
-        "url": "https://slack.com/about",
-        "accessed_at": "2025-11-15T10:30:15Z"
-      }
-    ]
-  },
-  "app_information": {
-    "description": "Slack is a channel-based messaging platform for team collaboration...",
-    "platforms": ["Web", "Windows", "macOS", "Linux", "iOS", "Android"],
-    "authentication": {
-      "mfa_supported": true,
-      "sso_supported": true,
-      "sso_protocols": ["SAML 2.0", "OAuth 2.0"],
-      "password_requirements": "enterprise_configurable"
-    },
-    "permissions_required": {
-      "desktop": ["notifications", "file_access"],
-      "mobile": ["camera", "microphone", "storage", "notifications"],
-      "elevated_privileges": false
-    },
-    "ai_features": {
-      "has_ai": true,
-      "features": ["Slack AI", "Search summaries", "Thread summaries"],
-      "ai_data_usage": "opt-in"
-    },
-    "versioning": {
-      "current_version": "4.35.126",
-      "last_update": "2025-11-10",
-      "update_frequency": "weekly",
-      "automatic_updates": true
-    },
-    "sources": [
-      {
-        "type": "vendor_stated",
-        "url": "https://slack.com/downloads",
-        "accessed_at": "2025-11-15T10:30:20Z"
-      }
-    ]
-  },
-  "compliance": {
-    "certifications": [
-      {
-        "name": "SOC 2 Type II",
-        "status": "certified",
-        "last_audit": "2024-09-15",
-        "attestation_url": "https://slack.com/trust/compliance"
-      },
-      {
-        "name": "ISO/IEC 27001",
-        "status": "certified",
-        "certificate_number": "ISO-12345",
-        "expiry": "2026-08-30"
-      },
-      {
-        "name": "ISO/IEC 27017",
-        "status": "certified"
-      },
-      {
-        "name": "ISO/IEC 27018",
-        "status": "certified"
-      }
-    ],
-    "gdpr_compliance": {
-      "compliant": true,
-      "dpa_available": true,
-      "dpa_url": "https://slack.com/trust/data-processing-addendum",
-      "data_subject_rights": [
-        "access",
-        "rectification",
-        "erasure",
-        "portability"
-      ],
-      "dpo_contact": "privacy@slack.com"
-    },
-    "data_storage": {
-      "regions": ["US", "EU", "APAC"],
-      "customer_choice": true,
-      "data_residency_options": ["US", "Germany", "Australia", "Japan"],
-      "encryption_at_rest": "AES-256",
-      "encryption_in_transit": "TLS 1.2+"
-    },
-    "data_policies": {
-      "retention_period": "configurable",
-      "deletion_policy": "within 30 days of request",
-      "backup_retention": "90 days",
-      "data_portability": true
-    },
-    "sources": [
-      {
-        "type": "independent",
-        "url": "https://slack.com/trust",
-        "accessed_at": "2025-11-15T10:30:25Z"
-      }
-    ]
-  },
-  "vulnerabilities": {
-    "cve_summary": {
-      "total_cves": 23,
-      "critical": 1,
-      "high": 4,
-      "medium": 12,
-      "low": 6,
-      "last_12_months": 3,
-      "trend": "decreasing",
-      "avg_time_to_patch_days": 14
-    },
-    "recent_cves": [
-      {
-        "cve_id": "CVE-2024-12345",
-        "severity": "high",
-        "cvss_score": 7.5,
-        "published": "2024-10-15",
-        "patched": "2024-10-22",
-        "description": "Authentication bypass in mobile app",
-        "affected_versions": ["4.30.x - 4.32.x"],
-        "patch_version": "4.33.0"
-      }
-    ],
-    "cisa_kev": {
-      "listed": false,
-      "entries": []
-    },
-    "sources": [
-      {
-        "type": "independent",
-        "url": "https://nvd.nist.gov/vuln/search",
-        "accessed_at": "2025-11-15T10:30:30Z"
-      },
-      {
-        "type": "independent",
-        "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
-        "accessed_at": "2025-11-15T10:30:35Z"
-      }
-    ]
-  },
-  "incidents": {
-    "total_incidents": 2,
-    "breaches": [
-      {
-        "date": "2022-12-31",
-        "type": "unauthorized_access",
-        "affected_users": "~0.5% of users",
-        "data_compromised": ["email addresses", "hashed passwords"],
-        "vendor_response": "Immediate password reset, security audit conducted",
-        "resolution_time_days": 7,
-        "public_disclosure": "https://slack.com/security-incident-2022"
-      }
-    ],
-    "abuse_signals": {
-      "phishing_campaigns": 3,
-      "malware_distribution": 0,
-      "spam_reports": "low"
-    },
-    "bug_bounty": {
-      "program_exists": true,
-      "platform": "HackerOne",
-      "url": "https://hackerone.com/slack",
-      "total_reports": 450,
-      "resolved": 420
-    },
-    "sources": [
-      {
-        "type": "vendor_stated",
-        "url": "https://slack.com/security-incident-2022",
-        "accessed_at": "2025-11-15T10:30:40Z"
-      },
-      {
-        "type": "independent",
-        "url": "https://haveibeenpwned.com",
-        "accessed_at": "2025-11-15T10:30:45Z"
-      }
-    ]
-  },
-  "security_rating": {
-    "trust_score": 78,
-    "risk_score": 22,
-    "confidence": "high",
-    "rationale": {
-      "positive_factors": [
-        "Strong compliance certifications (SOC 2, ISO 27001)",
-        "Active bug bounty program with high resolution rate",
-        "Fast CVE patching (avg 14 days)",
-        "Comprehensive security documentation"
-      ],
-      "negative_factors": [
-        "Historical security incident in 2022",
-        "1 critical CVE in past 24 months",
-        "Wide permission requirements on mobile"
-      ],
-      "neutral_factors": [
-        "Large attack surface due to platform diversity",
-        "Owned by Salesforce (reduced autonomy)"
-      ]
-    },
-    "scoring_breakdown": {
-      "compliance": 20,
-      "vulnerabilities": 15,
-      "incidents": 12,
-      "vendor_reputation": 18,
-      "security_features": 13
-    },
-    "vendor_vs_independent": {
-      "vendor_claims_verified": 18,
-      "vendor_claims_unverified": 2,
-      "independent_sources": 15
-    },
-    "data_sufficiency": "sufficient",
-    "sources": [
-      {
-        "type": "analysis",
-        "description": "Aggregated from all agent outputs"
-      }
-    ]
-  },
-  "alternatives": [
-    {
-      "name": "Microsoft Teams",
-      "vendor": "Microsoft Corporation",
-      "trust_score": 82,
-      "rationale": "Higher trust score due to Microsoft's security infrastructure and compliance. Better integration with Microsoft 365 security features.",
-      "security_advantages": [
-        "Advanced Threat Protection included",
-        "More granular permission controls",
-        "Better data loss prevention features"
-      ],
-      "considerations": [
-        "Requires Microsoft 365 subscription for full features",
-        "Steeper learning curve"
-      ]
-    },
-    {
-      "name": "Mattermost",
-      "vendor": "Mattermost, Inc.",
-      "trust_score": 75,
-      "rationale": "Open-source alternative with self-hosting option provides full data control. Lower trust score due to smaller vendor and community-driven security.",
-      "security_advantages": [
-        "Self-hosting option for complete data control",
-        "Open-source transparency",
-        "No AI features (data privacy)"
-      ],
-      "considerations": [
-        "Requires infrastructure management for self-hosted",
-        "Smaller security team than enterprise vendors"
-      ]
-    }
-  ],
-  "cache_info": {
-    "cached": false,
-    "cache_timestamp": null,
-    "data_freshness": "real-time"
-  },
-  "metadata": {
-    "report_type": "medium",
-    "generation_time_seconds": 120,
-    "total_sources": 42,
-    "agent_execution_order": [
-      "Entity Resolution Agent",
-      "Vendor Information Agent",
-      "App Information Agent",
-      "Compliance Document Agent",
-      "CISA KEV Agent",
-      "CVE Agent",
-      "Incident Breach Agent",
-      "Security Rating Agent",
-      "Alternative Agent",
-      "Report Generator Agent"
-    ]
-  }
-}
-```
+Assessment Schema
 
 **Status Codes:**
 
 - `200 OK` - Assessment retrieved successfully
 - `404 Not Found` - Assessment ID not found
 - `202 Accepted` - Assessment still processing (partial data returned)
-
----
 
 ### 4. Get Formatted Report
 
@@ -398,10 +90,7 @@
   "format": "markdown",
   "content": "# Security Assessment Report\n\n## Slack\n\n**Assessment Date:** November 15, 2025...",
   "generated_at": "2025-11-15T10:32:00Z"
-}
 ```
-
----
 
 ### 5. Export Report
 
@@ -422,8 +111,6 @@
 
 - `200 OK` - File download
 - `404 Not Found` - Assessment not found
-
----
 
 ### 6. List Assessments
 
@@ -447,23 +134,9 @@
   "page": 1,
   "page_size": 20,
   "total_pages": 8,
-  "assessments": [
-    {
-      "assessment_id": "uuid-1234-5678",
-      "app_name": "Slack",
-      "vendor_name": "Slack Technologies, LLC",
-      "status": "completed",
-      "trust_score": 78,
-      "risk_score": 22,
-      "created_at": "2025-11-15T10:30:00Z",
-      "completed_at": "2025-11-15T10:32:00Z",
-      "report_type": "medium"
-    }
-  ]
+  "assessments": []
 }
 ```
-
----
 
 ### 7. Compare Applications
 
@@ -521,8 +194,6 @@
 }
 ```
 
----
-
 ### 8. Check Cache
 
 **Endpoint:** `GET /api/v1/cache/{app_name}`
@@ -543,8 +214,6 @@
 }
 ```
 
----
-
 ### 9. Delete Assessment
 
 **Endpoint:** `DELETE /api/v1/assessments/{assessment_id}`
@@ -564,8 +233,6 @@
 
 - `200 OK` - Deleted successfully
 - `404 Not Found` - Assessment not found
-
----
 
 ## WebSocket Support (Optional Enhancement)
 
@@ -592,8 +259,6 @@ For real-time progress updates instead of polling:
   "timestamp": "2025-11-15T10:32:00Z"
 }
 ```
-
----
 
 ## Error Responses
 
@@ -622,8 +287,6 @@ All endpoints use consistent error format:
 - `EXTERNAL_API_ERROR` - Upstream service failure
 - `INSUFFICIENT_DATA` - Not enough public information available
 
----
-
 ## Rate Limiting
 
 All endpoints are rate-limited:
@@ -639,8 +302,6 @@ X-RateLimit-Remaining: 95
 X-RateLimit-Reset: 1699876800
 ```
 
----
-
 ## Authentication (Future)
 
 Currently not implemented, but placeholder for future:
@@ -650,8 +311,6 @@ Currently not implemented, but placeholder for future:
 ```
 Authorization: Bearer <api_token>
 ```
-
----
 
 ## UI Data Flow Examples
 
@@ -724,8 +383,6 @@ displaySideBySideComparison(comparison.applications);
 highlightKeyDifferences(comparison.comparison.key_differences);
 showRecommendation(comparison.comparison.recommendation);
 ```
-
----
 
 ## Data Size Estimates
 
