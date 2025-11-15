@@ -27,4 +27,3 @@ class CPEResolverAgent(BaseAgent):
 
     async def execute(self, input_data: CPEResolverAgentRequest) -> CPEResolverAgentResponse:
         return await super().execute(input_data)
-
