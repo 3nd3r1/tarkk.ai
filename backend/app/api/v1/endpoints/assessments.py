@@ -1,9 +1,8 @@
-from uuid import uuid1
-
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends
 from pydantic import UUID1, BaseModel
 
 from app.dependencies import get_assessment_service
+from app.schemas.assessment import AssessmentInputData, AssessmentType
 from app.services.assessment import AssessmentService
 
 router = APIRouter()
@@ -11,20 +10,35 @@ router = APIRouter()
 
 class AssessmentCreateRequest(BaseModel):
     name: str
-    vendor_name: str | None
-    url: str | None
+    vendor_name: str | None = None
+    url: str | None = None
+    assessment_type: AssessmentType = AssessmentType.MEDIUM
 
 
 class AssessmentCreateResponse(BaseModel):
-    assesment_id: UUID1
+    assessment_id: UUID1
+    status: str
 
 
 @router.post("", response_model=AssessmentCreateResponse)
 async def create_assesment(
     request: AssessmentCreateRequest,
+    background_tasks: BackgroundTasks,
     assessment_service: AssessmentService = Depends(get_assessment_service),
 ):
-    return AssessmentCreateResponse(assesment_id=uuid1())
+    input_data = AssessmentInputData(
+        name=request.name, vendor_name=request.vendor_name, url=request.url
+    )
+
+    assessment = await assessment_service.create_assessment(
+        input_data=input_data, assessment_type=request.assessment_type
+    )
+
+    background_tasks.add_task(assessment_service.process_assessment, str(assessment.id))
+
+    return AssessmentCreateResponse(
+        assessment_id=assessment.id, status=assessment.assessment_status.value
+    )
 
 
 @router.get("")
