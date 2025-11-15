@@ -2,3 +2,5 @@ venv/
 .direnv/
 .env
 __pycache__/
+
+tarkk.db
