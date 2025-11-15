@@ -5,8 +5,10 @@ import { useAuth } from '@/lib/auth-context';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { StickyNote, Plus, Edit2, Trash2, Save, X } from 'lucide-react';
 import { AuthModal } from '@/components/auth/auth-modal';
+import { Badge } from '@/components/ui/badge';
 
 interface AssessmentNotesProps {
   assessmentId: string;
@@ -14,6 +16,7 @@ interface AssessmentNotesProps {
 
 export function AssessmentNotes({ assessmentId }: AssessmentNotesProps) {
   const { isAuthenticated, userNotes, addNote, updateNote, deleteNote } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [newNoteContent, setNewNoteContent] = useState('');
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
@@ -22,11 +25,15 @@ export function AssessmentNotes({ assessmentId }: AssessmentNotesProps) {
 
   const notes = userNotes.filter(n => n.assessmentId === assessmentId);
 
-  const handleAddNote = () => {
+  const handleOpen = () => {
     if (!isAuthenticated) {
       setAuthModalOpen(true);
       return;
     }
+    setIsOpen(true);
+  };
+
+  const handleAddNote = () => {
     setIsAdding(true);
   };
 
@@ -66,128 +73,133 @@ export function AssessmentNotes({ assessmentId }: AssessmentNotesProps) {
     });
   };
 
-  if (!isAuthenticated) {
-    return (
-      <>
-        <Card className="p-6">
-          <div className="text-center py-8">
-            <StickyNote className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-semibold mb-2">Personal Notes</h3>
-            <p className="text-muted-foreground mb-4">
-              Sign in to add private notes to this assessment
-            </p>
-            <Button onClick={() => setAuthModalOpen(true)}>
-              Sign In to Add Notes
-            </Button>
-          </div>
-        </Card>
-        <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
-      </>
-    );
-  }
-
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <StickyNote className="h-5 w-5 text-primary" />
-          Your Notes ({notes.length})
-        </h3>
-        {!isAdding && (
-          <Button size="sm" onClick={handleAddNote}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Note
-          </Button>
+    <>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleOpen}
+        className="relative"
+      >
+        <StickyNote className="h-4 w-4 mr-2" />
+        Notes
+        {notes.length > 0 && (
+          <Badge 
+            variant="secondary" 
+            className="ml-2 h-5 min-w-5 px-1.5 flex items-center justify-center text-xs"
+          >
+            {notes.length}
+          </Badge>
         )}
-      </div>
+      </Button>
 
-      <div className="space-y-4">
-        {/* Add new note form */}
-        {isAdding && (
-          <Card className="p-4 border-2 border-primary">
-            <Textarea
-              placeholder="Write your note here..."
-              value={newNoteContent}
-              onChange={(e) => setNewNoteContent(e.target.value)}
-              rows={4}
-              className="mb-3"
-              autoFocus
-            />
-            <div className="flex gap-2">
-              <Button size="sm" onClick={handleSaveNew}>
-                <Save className="h-4 w-4 mr-2" />
-                Save Note
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => {
-                setIsAdding(false);
-                setNewNoteContent('');
-              }}>
-                <X className="h-4 w-4 mr-2" />
-                Cancel
-              </Button>
-            </div>
-          </Card>
-        )}
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <StickyNote className="h-4 w-4" />
+              Notes {notes.length > 0 && `(${notes.length})`}
+            </DialogTitle>
+          </DialogHeader>
 
-        {/* Existing notes */}
-        {notes.map((note) => (
-          <Card key={note.id} className="p-4 bg-muted/30">
-            {editingNoteId === note.id ? (
-              <>
+          <div className="space-y-3 mt-4">
+            {/* Add new note form */}
+            {isAdding ? (
+              <Card className="p-3 border border-primary/20">
                 <Textarea
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                  rows={4}
-                  className="mb-3"
+                  placeholder="Write your note..."
+                  value={newNoteContent}
+                  onChange={(e) => setNewNoteContent(e.target.value)}
+                  rows={3}
+                  className="mb-2 text-sm"
                   autoFocus
                 />
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={handleSaveEdit}>
-                    <Save className="h-4 w-4 mr-2" />
+                  <Button size="sm" onClick={handleSaveNew} className="h-7 px-2 text-xs">
+                    <Save className="h-3 w-3 mr-1" />
                     Save
                   </Button>
-                  <Button size="sm" variant="outline" onClick={handleCancelEdit}>
-                    <X className="h-4 w-4 mr-2" />
+                  <Button size="sm" variant="outline" onClick={() => {
+                    setIsAdding(false);
+                    setNewNoteContent('');
+                  }} className="h-7 px-2 text-xs">
+                    <X className="h-3 w-3 mr-1" />
                     Cancel
                   </Button>
                 </div>
-              </>
+              </Card>
             ) : (
-              <>
-                <div className="flex items-start justify-between gap-4 mb-2">
-                  <p className="text-sm whitespace-pre-wrap flex-1">{note.content}</p>
-                  <div className="flex gap-1">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleStartEdit(note.id, note.content)}
-                    >
-                      <Edit2 className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => deleteNote(note.id)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {note.createdAt !== note.updatedAt ? 'Updated' : 'Created'} {formatDate(note.updatedAt)}
-                </p>
-              </>
+              <Button size="sm" variant="outline" onClick={handleAddNote} className="w-full">
+                <Plus className="h-3 w-3 mr-2" />
+                Add Note
+              </Button>
             )}
-          </Card>
-        ))}
 
-        {notes.length === 0 && !isAdding && (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>No notes yet. Click "Add Note" to get started.</p>
+            {/* Existing notes */}
+            {notes.map((note) => (
+              <Card key={note.id} className="p-3 bg-muted/20">
+                {editingNoteId === note.id ? (
+                  <>
+                    <Textarea
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      rows={3}
+                      className="mb-2 text-sm"
+                      autoFocus
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleSaveEdit} className="h-7 px-2 text-xs">
+                        <Save className="h-3 w-3 mr-1" />
+                        Save
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={handleCancelEdit} className="h-7 px-2 text-xs">
+                        <X className="h-3 w-3 mr-1" />
+                        Cancel
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <p className="text-sm whitespace-pre-wrap flex-1 leading-relaxed">{note.content}</p>
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleStartEdit(note.id, note.content)}
+                          className="h-7 w-7 p-0"
+                        >
+                          <Edit2 className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => deleteNote(note.id)}
+                          className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {note.createdAt !== note.updatedAt ? 'Updated' : 'Created'} {formatDate(note.updatedAt)}
+                    </p>
+                  </>
+                )}
+              </Card>
+            ))}
+
+            {notes.length === 0 && !isAdding && (
+              <div className="text-center py-6 text-muted-foreground">
+                <StickyNote className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No notes yet. Click "Add Note" to get started.</p>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </Card>
+        </DialogContent>
+      </Dialog>
+
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+    </>
   );
 }
