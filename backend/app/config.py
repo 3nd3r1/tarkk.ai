@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str | None = None
     GEMINI_MODEL: str = "gemini-2.5-flash"
 
+    NVD_API_KEY: str | None = None
+
     class ConfigDict:
         env_file = ".env"
         extra = "ignore"
