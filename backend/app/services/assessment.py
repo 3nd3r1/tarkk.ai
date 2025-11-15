@@ -1,10 +1,13 @@
+from uuid import uuid1
+
+from pydantic import UUID1
+
 from app.agents.base import AgentError
 from app.agents.entity_resolution import EntityResolutionAgent
 from app.agents.entity_resolution.agent import EntityResolutionAgentRequest
 from app.llm.factory import LLMProviderFactory, LLMProviderType
-from app.schemas.assessment import Assesment, AssesmentInputData
+from app.schemas.assessment import Assessment, AssessmentInputData, AssessmentType
 from app.schemas.entity import Entity
-from app.schemas.report import ReportType
 
 
 class AssessmentServiceError(Exception):
@@ -22,15 +25,14 @@ class AssessmentService:
         self.entitiy_resolution_agent = EntityResolutionAgent(llm_provider)
 
     async def create_assessment(
-        self, input_data: AssesmentInputData, report_type: ReportType
-    ) -> Assesment:
-        entity = await self._call_entity_resolution_agent(input_data)
-        return Assesment(
-            id="assessment_123",
-            entity=entity,
-        )
+        self, input_data: AssessmentInputData, assessment_type: AssessmentType
+    ) -> Assessment:
+        return Assessment(id=uuid1(), input_data=input_data, assessment_type=assessment_type)
 
-    async def _call_entity_resolution_agent(self, input_data: AssesmentInputData) -> Entity:
+    async def process_assessment(self, assessment_id: UUID1) -> None:
+        pass
+
+    async def _call_entity_resolution_agent(self, input_data: AssessmentInputData) -> Entity:
         try:
             request = EntityResolutionAgentRequest(
                 input_data=input_data,
