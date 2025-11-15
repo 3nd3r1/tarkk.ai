@@ -36,17 +36,9 @@ format:
 	$(PYTHON_VENV) -m ruff format app/
 	$(PYTHON_VENV) -m ruff check --fix app/
 
-.PHONY: docker-up
-docker-up:
-	docker compose up -d
-
-.PHONY: docker-down
-docker-down:
-	docker compose down
-
-.PHONY: docker-logs
-docker-logs:
-	docker compose logs -f
+.PHONY: docker-build
+docker-build:
+	docker build -t tarkistus-backend .
 
 .PHONY: db-migrate
 db-migrate:
