@@ -3,14 +3,6 @@ from pydantic import BaseModel, Field
 from app.schemas.vendor import Vendor
 
 
-class EntityData(BaseModel):
-    """Schema representing the input data for generating an assessment."""
-
-    name: str = Field(..., description="The name of the product")
-    vendor_name: str = Field(..., description="The name of the vendor")
-    website: str | None = Field(None, description="The product's website URL")
-
-
 class EntityCategory(str):
     FILESHARING = "filesharing"
     CHAT = "chat"

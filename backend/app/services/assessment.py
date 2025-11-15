@@ -2,8 +2,8 @@ from app.agents.base import AgentError
 from app.agents.entity_resolution import EntityResolutionAgent
 from app.agents.entity_resolution.agent import EntityResolutionAgentRequest
 from app.llm.factory import LLMProviderFactory, LLMProviderType
-from app.schemas.assessment import Assesment
-from app.schemas.entity import Entity, EntityData
+from app.schemas.assessment import Assesment, AssesmentInputData
+from app.schemas.entity import Entity
 from app.schemas.report import ReportType
 
 
@@ -22,18 +22,18 @@ class AssessmentService:
         self.entitiy_resolution_agent = EntityResolutionAgent(llm_provider)
 
     async def create_assessment(
-        self, entity_data: EntityData, report_type: ReportType
+        self, input_data: AssesmentInputData, report_type: ReportType
     ) -> Assesment:
-        entity = await self._call_entity_resolution_agent(entity_data)
+        entity = await self._call_entity_resolution_agent(input_data)
         return Assesment(
             id="assessment_123",
             entity=entity,
         )
 
-    async def _call_entity_resolution_agent(self, entity_data: EntityData) -> Entity:
+    async def _call_entity_resolution_agent(self, input_data: AssesmentInputData) -> Entity:
         try:
             request = EntityResolutionAgentRequest(
-                entity_data=entity_data,
+                input_data=input_data,
             )
             response = await self.entitiy_resolution_agent.execute(request)
             return response.resolved_entity
