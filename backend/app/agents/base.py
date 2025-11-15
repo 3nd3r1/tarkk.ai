@@ -14,8 +14,9 @@ class BaseAgent(Generic[TInput, TOutput]):
     input_model: type[TInput]
     output_model: type[TOutput]
 
-    def __init__(self, llm_provider: LLMProvider):
+    def __init__(self, llm_provider: LLMProvider, max_tokens: int = 2048):
         self.llm_provider = llm_provider
+        self._max_tokens = max_tokens
 
     async def execute(self, input_data: TInput) -> TOutput:
         """
@@ -47,7 +48,7 @@ class BaseAgent(Generic[TInput, TOutput]):
             {"role": "user", "content": user_prompt},
         ]
 
-        response = await self.llm_provider.generate(messages)
+        response = await self.llm_provider.generate(messages, max_tokens=self._max_tokens)
 
         try:
             json_content = self._extract_json_from_response(response)
@@ -67,15 +68,24 @@ class BaseAgent(Generic[TInput, TOutput]):
         response = response.strip()
 
         # Check if response is wrapped in markdown code blocks
-        if response.startswith("```"):
+        if "```" in response:
             # Use regex to extract content between code blocks
-            # Handles both ```json and ``` variants
-            pattern = r"```(?:json)?\s*\n?(.*?)\n?```"
-            match = re.search(pattern, response, re.DOTALL)
+            # More robust pattern to handle various markdown formats
+            pattern = r"```(?:json)?\s*\n?(.*?)\n?\s*```"
+            match = re.search(pattern, response, re.DOTALL | re.MULTILINE)
             if match:
-                return match.group(1).strip()
+                extracted = match.group(1).strip()
+                # Remove any leading/trailing whitespace and ensure it's valid
+                return extracted
 
-        # If no code blocks found, return original response
+        # If no code blocks found, try to find JSON-like content
+        # Look for content that starts with { and ends with }
+        json_pattern = r'(\{.*\})'
+        json_match = re.search(json_pattern, response, re.DOTALL)
+        if json_match:
+            return json_match.group(1).strip()
+
+        # If no JSON found, return original response
         return response
 
     def _load_template(self, template_name: str) -> jinja2.Template:

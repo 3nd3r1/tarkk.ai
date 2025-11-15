@@ -30,7 +30,7 @@ class CVEAnalysisAgent(BaseAgent):
     output_model = CVEAnalysisAgentResponse
 
     def __init__(self, llm_provider: LLMProvider):
-        super().__init__(llm_provider)
+        super().__init__(llm_provider, max_tokens=100192)
 
     async def execute(self, input_data: CVEAnalysisAgentRequest) -> CVEAnalysisAgentResponse:
         return await super().execute(input_data)

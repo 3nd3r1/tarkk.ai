@@ -1,1 +1,13 @@
-Analyze CVE data for the given application.
+Entity: {{ entity.name }} ({{ entity.entity_type }})
+
+CVE Summary ({{ cves|length }} CVEs):
+{% for cve in cves %}
+- {{ cve.id }}: {{ cve.severity }} ({{ cve.score }}) - {{ cve.description[:100] }}{% if cve.description|length > 100 %}...{% endif %}
+{% endfor %}
+
+For analyzed_cves field, use this format:
+{% for cve in cves %}
+{"id": "{{ cve.id }}", "description": "{{ cve.description | replace('"', '\\"') }}", "published": "{{ cve.published.isoformat() }}", "severity": "{{ cve.severity }}", "score": {{ cve.score if cve.score is not none else 'null' }}}{% if not loop.last %},{% endif %}
+{% endfor %}
+
+Return JSON only.
