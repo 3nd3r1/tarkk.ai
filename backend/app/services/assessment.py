@@ -4,6 +4,10 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from app.agents.base import AgentError
+from app.agents.cpe_resolver import CPEResolverAgent
+from app.agents.cpe_resolver.agent import CPEResolverAgentRequest
+from app.agents.cve_analysis import CVEAnalysisAgent
+from app.agents.cve_analysis.agent import CVEAnalysisAgentRequest
 from app.agents.entity_resolution import EntityResolutionAgent
 from app.agents.entity_resolution.agent import EntityResolutionAgentRequest
 from app.agents.vendor_information import VendorInformationAgent
@@ -14,6 +18,7 @@ from app.models.assessment import Assessment as AssessmentModel
 from app.schemas.assessment import Assessment, AssessmentInputData, AssessmentStatus, AssessmentType
 from app.schemas.entity import Entity
 from app.schemas.vendor import Vendor
+from app.services.cve import CVEService
 
 
 class AssessmentServiceError(Exception):
@@ -33,6 +38,9 @@ class AssessmentService:
         llm_provider = LLMProviderFactory.create_provider(LLMProviderType.GEMINI)
         self.entitiy_resolution_agent = EntityResolutionAgent(llm_provider)
         self.vendor_information_agent = VendorInformationAgent(llm_provider)
+        self.cpe_resolver_agent = CPEResolverAgent(llm_provider)
+        self.cve_analysis_agent = CVEAnalysisAgent(llm_provider)
+        self.cve_service = CVEService()
         self.__db = db
 
     def _get_db(self) -> Session:
@@ -138,6 +146,20 @@ class AssessmentService:
         db.commit()
         return True
 
+    async def update_assessment_cve_analysis(self, assessment_id: UUID, cve_analysis: dict) -> bool:
+        """Update assessment CVE analysis data in database."""
+        db = self._get_db()
+
+        db_assessment = (
+            db.query(AssessmentModel).filter(AssessmentModel.id == str(assessment_id)).first()
+        )
+        if not db_assessment:
+            return False
+
+        db_assessment.cve_analysis_data = cve_analysis
+        db.commit()
+        return True
+
     async def process_assessment(self, assessment_id: UUID) -> None:
         """Process the assessment in the background."""
         try:
@@ -156,6 +178,43 @@ class AssessmentService:
 
                 vendor_info = await self._call_vendor_information_agent(entity)
                 await self.update_assessment_vendor(assessment_id, vendor_info)
+
+                # Get CPEs for the entity
+                cpes = await self._call_cpe_resolver_agent(entity)
+                logging.info(f"Found {len(cpes)} CPEs for assessment {assessment_id}")
+
+                # Get CVEs for all CPEs
+                all_cves = []
+                async with self.cve_service:
+                    for cpe in cpes:
+                        try:
+                            cves = await self.cve_service.get_cves(
+                                vendor=cpe.vendor, product=cpe.product, limit=100
+                            )
+                            all_cves.extend(cves)
+                            logging.debug(
+                                f"Found {len(cves)} CVEs for CPE: {cpe.vendor}:{cpe.product}"
+                            )
+                        except Exception as e:
+                            logging.warning(
+                                f"Failed to get CVEs for {cpe.vendor}:{cpe.product}: {e}"
+                            )
+                            continue
+
+                # Remove duplicates based on CVE ID
+                unique_cves = {cve.id: cve for cve in all_cves}.values()
+                all_cves = list(unique_cves)
+                logging.debug(
+                    f"Total unique CVEs found for assessment {assessment_id}: {len(all_cves)}"
+                )
+
+                # Analyze CVEs with the CVE analysis agent
+                if all_cves:
+                    cve_analysis = await self._call_cve_analysis_agent(entity, all_cves)
+                    await self.update_assessment_cve_analysis(assessment_id, cve_analysis)
+                    logging.debug(f"CVE analysis completed for assessment {assessment_id}")
+                else:
+                    logging.debug(f"No CVEs found for assessment {assessment_id}")
 
             except AssessmentServiceAgentError as e:
                 logging.error(f"Agent processing failed for {assessment_id}: {e}")
@@ -188,3 +247,24 @@ class AssessmentService:
             return response.vendor
         except AgentError as e:
             raise AssessmentServiceAgentError(f"Vendor information gathering failed: {e}") from e
+
+    async def _call_cpe_resolver_agent(self, entity: Entity) -> list:
+        try:
+            request = CPEResolverAgentRequest(
+                entity_data=entity,
+            )
+            response = await self.cpe_resolver_agent.execute(request)
+            return response.cpes
+        except AgentError as e:
+            raise AssessmentServiceAgentError(f"CPE resolution failed: {e}") from e
+
+    async def _call_cve_analysis_agent(self, entity: Entity, cves: list) -> dict:
+        try:
+            request = CVEAnalysisAgentRequest(
+                entity=entity,
+                cves=cves,
+            )
+            response = await self.cve_analysis_agent.execute(request)
+            return response.model_dump()
+        except AgentError as e:
+            raise AssessmentServiceAgentError(f"CVE analysis failed: {e}") from e
