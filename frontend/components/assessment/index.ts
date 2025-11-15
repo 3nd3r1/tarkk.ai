@@ -19,6 +19,7 @@ export { AIFeaturesBreakdown } from './ai-features-breakdown';
 export { SourcesBreakdown } from './sources-breakdown';
 export { ReportSizeSelector } from './report-size-selector';
 export { DisclaimerBanner } from './disclaimer-banner';
+export { StatusBanner } from './status-banner';
 
 // Bonus Components (Creative Enhancements)
 export { SecurityScoreBreakdown } from './security-score-breakdown';

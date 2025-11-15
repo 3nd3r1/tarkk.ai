@@ -27,6 +27,7 @@ export interface Assessment {
   id: string;
   timestamp: string;
   cached: boolean;
+  status?: 'queued' | 'in_progress' | 'completed' | 'failed';
   
   // §2 - Product Information
   product: {

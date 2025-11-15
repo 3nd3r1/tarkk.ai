@@ -186,6 +186,7 @@ function mapApiAssessmentToFrontend(apiAssessment: ApiAssessment): Assessment {
     id: apiAssessment.id,
     timestamp: new Date().toISOString(), // API doesn't provide timestamp, use current
     cached: apiAssessment.assessment_status === 'completed',
+    status: apiAssessment.assessment_status,
     product: {
       name: productName,
       vendor: vendorName,

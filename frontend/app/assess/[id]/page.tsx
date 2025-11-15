@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, ExternalLink, Shield, Building2, Calendar, Download } from "lucide-react";
@@ -35,6 +35,7 @@ import { SecurityScoreBreakdown } from "@/components/assessment/security-score-b
 import { SaveAssessmentButton } from "@/components/assessment/save-assessment-button";
 import { AssessmentNotes } from "@/components/assessment/assessment-notes";
 import { ProductLogo } from "@/components/shared/product-logo";
+import { StatusBanner } from "@/components/assessment/status-banner";
 
 export default function AssessmentPage() {
   const params = useParams();
@@ -42,18 +43,39 @@ export default function AssessmentPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [reportSize, setReportSize] = useState<ReportSize>('enterprise');
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const fetchAssessment = useCallback(async () => {
+    if (params.id) {
+      const data = await getAssessment(params.id as string);
+      setAssessment(data);
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  }, [params.id]);
 
   useEffect(() => {
-    const fetchAssessment = async () => {
-      if (params.id) {
-        const data = await getAssessment(params.id as string);
-        setAssessment(data);
-        setIsLoading(false);
-      }
-    };
-
     fetchAssessment();
-  }, [params.id]);
+  }, [fetchAssessment]);
+
+  // Auto-refresh when status is not completed or failed
+  useEffect(() => {
+    if (!assessment || !assessment.status || assessment.status === 'completed' || assessment.status === 'failed') {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setIsRefreshing(true);
+      fetchAssessment();
+    }, 5000); // Refresh every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [assessment?.status, fetchAssessment]);
+
+  const handleManualRefresh = () => {
+    setIsRefreshing(true);
+    fetchAssessment();
+  };
 
   const handleDownloadPDF = async () => {
     if (!assessment) return;
@@ -150,6 +172,20 @@ export default function AssessmentPage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-6">
+          {/* Status Banner */}
+          {assessment.status && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+            >
+              <StatusBanner 
+                status={assessment.status} 
+                onRefresh={handleManualRefresh}
+                isRefreshing={isRefreshing}
+              />
+            </motion.div>
+          )}
           {/* Report Size Selector with Download Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
