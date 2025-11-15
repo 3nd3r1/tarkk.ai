@@ -47,3 +47,11 @@ docker-down:
 .PHONY: docker-logs
 docker-logs:
 	docker compose logs -f
+
+.PHONY: db-migrate
+db-migrate:
+	$(PYTHON_VENV) -m alembic revision --autogenerate -m "$(msg)"
+
+.PHONY: db-upgrade
+db-upgrade:
+	$(PYTHON_VENV) -m alembic upgrade head
