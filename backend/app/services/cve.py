@@ -1,19 +1,11 @@
-from datetime import datetime
 import logging
+from datetime import datetime
 from typing import Any
 
 import httpx
 
 from app.config import settings
-from app.schemas.cve import (
-    CVE,
-    CVSS,
-    CVEDescription,
-    CVEReference,
-    CVESeverity,
-    CVEStatus,
-    CVEVendorProduct,
-)
+from app.schemas.cve import CVE, CVESeverity
 
 
 class CVEServiceError(Exception):
@@ -38,6 +30,17 @@ class CVEService:
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self._client.aclose()
 
+    async def test_api_connection(self) -> bool:
+        """Test if the NVD API is accessible."""
+        try:
+            params = {"resultsPerPage": 1, "startIndex": 0}
+            headers = self._build_headers()
+            response = await self._client.get(self._base_url, params=params, headers=headers)
+            return response.status_code == 200
+        except Exception as e:
+            logging.error(f"Failed to test API connection: {e}")
+            return False
+
     async def get_cves(
         self,
         vendor: str | None = None,
@@ -53,8 +56,23 @@ class CVEService:
             headers = self._build_headers()
 
             logging.debug(f"Searching CVEs with params: {params}")
+            logging.debug(f"Making request to: {self._base_url}")
 
             response = await self._client.get(self._base_url, params=params, headers=headers)
+
+            logging.debug(f"Response status: {response.status_code}")
+            logging.debug(f"Response URL: {response.url}")
+
+            if response.status_code == 404:
+                logging.warning(f"API returned 404 for params: {params}")
+                return []  # Return empty list instead of raising error
+            elif response.status_code == 403:
+                logging.error("API returned 403 - Rate limited or forbidden. Consider adding API key.")
+                return []
+            elif response.status_code == 503:
+                logging.error("API returned 503 - Service unavailable")
+                return []
+
             response.raise_for_status()
 
             data = response.json()
@@ -84,7 +102,8 @@ class CVEService:
             params["cveId"] = cve_id
 
         if vendor and product:
-            params["cpeName"] = f"cpe:2.3:*:*:{vendor}:{product}:*:*:*:*:*:*:*"
+            # Use keywordSearch for better results with vendor:product combination
+            params["keywordSearch"] = f"{vendor} {product}"
         elif vendor:
             params["keywordSearch"] = vendor
         elif product:
@@ -121,110 +140,47 @@ class CVEService:
     def _parse_cve_item(self, cve_data: dict[str, Any]) -> CVE:
         """Parse a single CVE item from the NVD API response."""
         cve_id = cve_data.get("id", "")
-        source_identifier = cve_data.get("sourceIdentifier", "")
 
+        # Get publication date
         published_str = cve_data.get("published", "")
-        last_modified_str = cve_data.get("lastModified", "")
-
         published = datetime.fromisoformat(published_str.replace("Z", "+00:00"))
-        last_modified = datetime.fromisoformat(last_modified_str.replace("Z", "+00:00"))
 
-        vuln_status = CVEStatus(cve_data.get("vulnStatus", "PUBLISHED"))
-
-        # Parse descriptions
-        descriptions = []
+        # Get English description
+        description = "No description available"
         for desc_data in cve_data.get("descriptions", []):
-            descriptions.append(
-                CVEDescription(
-                    lang=desc_data.get("lang", "en"),
-                    value=desc_data.get("value", ""),
-                )
-            )
+            if desc_data.get("lang") == "en":
+                description = desc_data.get("value", "No description available")
+                break
 
-        # Parse CVSS metrics
-        cvss_v3 = None
-        cvss_v2 = None
+        # Get CVSS severity and score (prefer v3 over v2)
+        severity = CVESeverity.NONE
+        score = None
+
         metrics = cve_data.get("metrics", {})
-
         if "cvssMetricV31" in metrics and metrics["cvssMetricV31"]:
             cvss_data = metrics["cvssMetricV31"][0]["cvssData"]
-            cvss_v3 = CVSS(
-                version=cvss_data.get("version", "3.1"),
-                vector_string=cvss_data.get("vectorString", ""),
-                base_score=cvss_data.get("baseScore", 0.0),
-                base_severity=CVESeverity(cvss_data.get("baseSeverity", "NONE")),
-            )
-
-        if "cvssMetricV2" in metrics and metrics["cvssMetricV2"]:
+            severity = CVESeverity(cvss_data.get("baseSeverity", "NONE"))
+            score = cvss_data.get("baseScore")
+        elif "cvssMetricV30" in metrics and metrics["cvssMetricV30"]:
+            cvss_data = metrics["cvssMetricV30"][0]["cvssData"]
+            severity = CVESeverity(cvss_data.get("baseSeverity", "NONE"))
+            score = cvss_data.get("baseScore")
+        elif "cvssMetricV2" in metrics and metrics["cvssMetricV2"]:
             cvss_data = metrics["cvssMetricV2"][0]["cvssData"]
-            cvss_v2 = CVSS(
-                version=cvss_data.get("version", "2.0"),
-                vector_string=cvss_data.get("vectorString", ""),
-                base_score=cvss_data.get("baseScore", 0.0),
-                base_severity=CVESeverity(cvss_data.get("baseSeverity", "NONE")),
-            )
-
-        # Parse references
-        references = []
-        for ref_data in cve_data.get("references", []):
-            references.append(
-                CVEReference(
-                    url=ref_data.get("url", ""),
-                    source=ref_data.get("source"),
-                    tags=ref_data.get("tags", []),
-                )
-            )
-
-        # Parse affected products
-        affected_products = []
-        for config in cve_data.get("configurations", []):
-            for node in config.get("nodes", []):
-                for cpe_match in node.get("cpeMatch", []):
-                    cpe_name = cpe_match.get("criteria", "")
-                    if cpe_name:
-                        # Parse CPE name format: cpe:2.3:a:vendor:product:version:...
-                        cpe_parts = cpe_name.split(":")
-                        if len(cpe_parts) >= 5:
-                            vendor = cpe_parts[3] if cpe_parts[3] != "*" else ""
-                            product = cpe_parts[4] if cpe_parts[4] != "*" else ""
-                            version = cpe_parts[5] if cpe_parts[5] != "*" else None
-
-                            if vendor or product:
-                                affected_products.append(
-                                    CVEVendorProduct(
-                                        vendor=vendor,
-                                        product=product,
-                                        version=version,
-                                        version_start_including=cpe_match.get(
-                                            "versionStartIncluding"
-                                        ),
-                                        version_end_including=cpe_match.get("versionEndIncluding"),
-                                        version_start_excluding=cpe_match.get(
-                                            "versionStartExcluding"
-                                        ),
-                                        version_end_excluding=cpe_match.get("versionEndExcluding"),
-                                    )
-                                )
-
-        # Parse CWE IDs
-        cwe_ids = []
-        for weakness in cve_data.get("weaknesses", []):
-            for desc in weakness.get("description", []):
-                if desc.get("lang") == "en":
-                    cwe_id = desc.get("value", "")
-                    if cwe_id.startswith("CWE-"):
-                        cwe_ids.append(cwe_id)
+            score = cvss_data.get("baseScore")
+            # Convert v2 score to severity approximation
+            if score is not None:
+                if score >= 7.0:
+                    severity = CVESeverity.HIGH
+                elif score >= 4.0:
+                    severity = CVESeverity.MEDIUM
+                else:
+                    severity = CVESeverity.LOW
 
         return CVE(
             id=cve_id,
-            source_identifier=source_identifier,
+            description=description,
             published=published,
-            last_modified=last_modified,
-            vuln_status=vuln_status,
-            descriptions=descriptions,
-            cvss_v3=cvss_v3,
-            cvss_v2=cvss_v2,
-            references=references,
-            affected_products=affected_products,
-            cwe_ids=cwe_ids,
+            severity=severity,
+            score=score,
         )
