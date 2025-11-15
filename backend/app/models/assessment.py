@@ -19,8 +19,8 @@ class Assessment(Base):
     input_url = Column(Text, nullable=True)
 
     # Assessment metadata
-    assessment_type = Column(SQLEnum(AssessmentType), nullable=False)
-    assessment_status = Column(
+    assessment_type: Column[AssessmentType] = Column(SQLEnum(AssessmentType), nullable=False)
+    assessment_status: Column[AssessmentStatus] = Column(
         SQLEnum(AssessmentStatus), nullable=False, default=AssessmentStatus.QUEUED
     )
 
@@ -32,4 +32,3 @@ class Assessment(Base):
     updated_at = Column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
     )
-

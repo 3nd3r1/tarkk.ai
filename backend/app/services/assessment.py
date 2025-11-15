@@ -6,7 +6,7 @@ from app.agents.base import AgentError
 from app.agents.entity_resolution import EntityResolutionAgent
 from app.agents.entity_resolution.agent import EntityResolutionAgentRequest
 from app.llm.factory import LLMProviderFactory, LLMProviderType
-from app.schemas.assessment import Assessment, AssessmentInputData, AssessmentType
+from app.schemas.assessment import Assessment, AssessmentInputData, AssessmentStatus, AssessmentType
 from app.schemas.entity import Entity
 
 
@@ -27,7 +27,12 @@ class AssessmentService:
     async def create_assessment(
         self, input_data: AssessmentInputData, assessment_type: AssessmentType
     ) -> Assessment:
-        return Assessment(id=uuid1(), input_data=input_data, assessment_type=assessment_type)
+        return Assessment(
+            id=uuid1(),
+            input_data=input_data,
+            assessment_type=assessment_type,
+            assessment_status=AssessmentStatus.QUEUED,
+        )
 
     async def process_assessment(self, assessment_id: UUID1) -> None:
         pass

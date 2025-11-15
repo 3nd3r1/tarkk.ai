@@ -2,14 +2,14 @@ from pydantic import BaseModel
 
 from app.agents.base import BaseAgent
 from app.llm.base import LLMProvider
-from app.schemas.assessment import AssesmentInputData
+from app.schemas.assessment import AssessmentInputData
 from app.schemas.entity import Entity
 
 
 class EntityResolutionAgentRequest(BaseModel):
     """Request schema for entity resolution agent."""
 
-    input_data: AssesmentInputData
+    input_data: AssessmentInputData
 
 
 class EntityResolutionAgentResponse(BaseModel):
