@@ -68,7 +68,7 @@ class AssessmentService:
 
         return Assessment.from_model(db_assessment)
 
-    async def update_assessment_status(self, assessment_id: str, status: AssessmentStatus) -> bool:
+    async def update_assessment_status(self, assessment_id: UUID1, status: AssessmentStatus) -> bool:
         """Update assessment status in database."""
         db = self._get_db()
 
@@ -82,7 +82,7 @@ class AssessmentService:
         db.commit()
         return True
 
-    async def update_assessment_entity(self, assessment_id: str, entity: Entity) -> bool:
+    async def update_assessment_entity(self, assessment_id: UUID1, entity: Entity) -> bool:
         """Update assessment entity data in database."""
         db = self._get_db()
 
@@ -96,21 +96,18 @@ class AssessmentService:
         db.commit()
         return True
 
-    async def process_assessment(self, assessment_id: str) -> None:
+    async def process_assessment(self, assessment_id: UUID1) -> None:
         """Process the assessment in the background."""
         try:
             logging.info(f"Starting background processing for assessment {assessment_id}")
 
-            # 1. Update status to IN_PROGRESS
             await self.update_assessment_status(assessment_id, AssessmentStatus.IN_PROGRESS)
 
-            # 2. Fetch assessment from database
-            assessment = await self.fetch_assessment(assessment_id)
+            assessment = await self.get_assessment(assessment_id)
             if not assessment:
                 logging.error(f"Assessment {assessment_id} not found")
                 return
 
-            # 3. Call entity resolution and other agents
             try:
                 entity = await self._call_entity_resolution_agent(assessment.input_data)
                 await self.update_assessment_entity(assessment_id, entity)
@@ -119,7 +116,6 @@ class AssessmentService:
                 await self.update_assessment_status(assessment_id, AssessmentStatus.FAILED)
                 return
 
-            # 4. Update status to COMPLETED
             await self.update_assessment_status(assessment_id, AssessmentStatus.COMPLETED)
             logging.info(f"Background processing completed for assessment {assessment_id}")
 

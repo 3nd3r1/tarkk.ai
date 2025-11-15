@@ -34,7 +34,7 @@ async def create_assesment(
         input_data=input_data, assessment_type=request.assessment_type
     )
 
-    background_tasks.add_task(assessment_service.process_assessment, str(assessment.id))
+    background_tasks.add_task(assessment_service.process_assessment, assessment.id)
 
     return AssessmentCreateResponse(
         assessment_id=assessment.id, status=assessment.assessment_status.value
