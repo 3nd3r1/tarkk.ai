@@ -43,6 +43,11 @@ class AssessmentService:
     async def create_assessment(
         self, input_data: AssessmentInputData, assessment_type: AssessmentType
     ) -> Assessment:
+        # Check if assessment with same name already exists
+        existing_assessment = await self.get_assessment_by_name(input_data.name)
+        if existing_assessment:
+            return existing_assessment
+
         db = self._get_db()
 
         db_assessment = AssessmentModel(
@@ -79,6 +84,17 @@ class AssessmentService:
         db_assessments = db.query(AssessmentModel).all()
 
         return [Assessment.from_model(db_assessment) for db_assessment in db_assessments]
+
+    async def get_assessment_by_name(self, name: str) -> Assessment | None:
+        """Fetch assessment by input name from database."""
+        db = self._get_db()
+
+        db_assessment = db.query(AssessmentModel).filter(AssessmentModel.input_name == name).first()
+
+        if not db_assessment:
+            return None
+
+        return Assessment.from_model(db_assessment)
 
     async def update_assessment_status(self, assessment_id: UUID, status: AssessmentStatus) -> bool:
         """Update assessment status in database."""

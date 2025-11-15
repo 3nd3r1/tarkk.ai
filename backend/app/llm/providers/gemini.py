@@ -83,7 +83,6 @@ class GeminiProvider(LLMProvider):
                 safety_settings=safety_settings,
             )
 
-
             # Check if response was blocked by safety filters
             if not response.candidates:
                 raise LLMValidationError("Gemini response contains no candidates")

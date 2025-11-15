@@ -32,6 +32,13 @@ async def create_assesment(
         name=request.name, vendor_name=request.vendor_name, url=request.url
     )
 
+    # Check if assessment already exists
+    existing_assessment = await assessment_service.get_assessment_by_name(request.name)
+    if existing_assessment:
+        return AssessmentCreateResponse(
+            assessment_id=existing_assessment.id, status=existing_assessment.assessment_status.value
+        )
+
     assessment = await assessment_service.create_assessment(
         input_data=input_data, assessment_type=request.assessment_type
     )
