@@ -1,146 +1,241 @@
-"use client"
+'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { FileText, Lock, Globe, Shield } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Assessment } from '@/lib/types';
+import { FileText, Globe, Lock, Shield, TrendingUp, ExternalLink } from 'lucide-react';
 
 interface SourcesBreakdownProps {
-  sources: {
-    public: {
-      count: number;
-      types: Array<{ type: string; count: number }>;
-    };
-    confidential: {
-      count: number;
-      types: Array<{ type: string; count: number }>;
-    };
-  };
+  sources: Assessment['sources'];
+  reportSize?: 'small' | 'medium' | 'full';
 }
 
-export function SourcesBreakdown({ sources }: SourcesBreakdownProps) {
+export function SourcesBreakdown({ sources, reportSize = 'medium' }: SourcesBreakdownProps) {
   const totalSources = sources.public.count + sources.confidential.count;
-  
-  const pieData = [
-    { name: 'Public Sources', value: sources.public.count, color: '#10b981' },
-    { name: 'Confidential Sources', value: sources.confidential.count, color: '#6366f1' }
-  ];
-
-  const publicPercentage = ((sources.public.count / totalSources) * 100).toFixed(0);
-  const confidentialPercentage = ((sources.confidential.count / totalSources) * 100).toFixed(0);
+  const publicPercentage = Math.round((sources.public.count / totalSources) * 100);
+  const confidentialPercentage = 100 - publicPercentage;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Information Sources</CardTitle>
-        <CardDescription>
-          Transparency report: {totalSources} total sources analyzed
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-blue-500" />
+              Information Sources
+            </CardTitle>
+            <CardDescription>
+              Transparency in data collection and verification
+            </CardDescription>
+          </div>
+          
+          <div className="text-center">
+            <div className="text-3xl font-bold text-primary">
+              {totalSources}
+            </div>
+            <div className="text-xs text-muted-foreground">Total Sources</div>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Source Type Distribution */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Pie Chart */}
+        {/* Source Distribution Visualization */}
+        <div className="space-y-4">
+          {/* Public Sources */}
           <div>
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--popover))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-green-500" />
+                <h4 className="text-sm font-semibold">Public Sources</h4>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-green-500">{sources.public.count}</span>
+                <Badge variant="outline" className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300">
+                  {publicPercentage}%
+                </Badge>
+              </div>
+            </div>
+            
+            {/* Public sources bar */}
+            <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden mb-3">
+              <div 
+                className="h-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-end pr-4 transition-all duration-1000 ease-out"
+                style={{ width: `${publicPercentage}%` }}
+              >
+                <span className="text-white text-xs font-bold">
+                  {publicPercentage > 20 && `${sources.public.count} sources`}
+                </span>
+              </div>
+            </div>
+            
+            {reportSize !== 'small' && sources.public.types.length > 0 && (
+              <div className="pl-6 space-y-2">
+                {sources.public.types.map((type, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-green-500" />
+                      <span className="text-muted-foreground">{type.type}</span>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      {type.count}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Stats */}
-          <div className="flex flex-col justify-center gap-4">
-            <div className="border rounded-lg p-4 bg-green-500/10 border-green-500/20">
-              <div className="flex items-center gap-2 mb-2">
-                <Globe className="h-5 w-5 text-green-500" />
-                <h5 className="font-semibold">Public Sources</h5>
+          {/* Confidential Sources */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Lock className="h-4 w-4 text-orange-500" />
+                <h4 className="text-sm font-semibold">Confidential Sources</h4>
               </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-green-500">{sources.public.count}</span>
-                <span className="text-sm text-muted-foreground">({publicPercentage}%)</span>
-              </div>
-            </div>
-
-            <div className="border rounded-lg p-4 bg-indigo-500/10 border-indigo-500/20">
-              <div className="flex items-center gap-2 mb-2">
-                <Lock className="h-5 w-5 text-indigo-500" />
-                <h5 className="font-semibold">Confidential Sources</h5>
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-indigo-500">{sources.confidential.count}</span>
-                <span className="text-sm text-muted-foreground">({confidentialPercentage}%)</span>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-orange-500">{sources.confidential.count}</span>
+                <Badge variant="outline" className="bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300">
+                  {confidentialPercentage}%
+                </Badge>
               </div>
             </div>
+            
+            {/* Confidential sources bar */}
+            <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden mb-3">
+              <div 
+                className="h-full bg-gradient-to-r from-orange-500 to-amber-500 flex items-center justify-end pr-4 transition-all duration-1000 ease-out"
+                style={{ width: `${confidentialPercentage}%` }}
+              >
+                <span className="text-white text-xs font-bold">
+                  {confidentialPercentage > 20 && `${sources.confidential.count} sources`}
+                </span>
+              </div>
+            </div>
+            
+            {reportSize !== 'small' && sources.confidential.types.length > 0 && (
+              <div className="pl-6 space-y-2">
+                {sources.confidential.types.map((type, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-orange-500" />
+                      <span className="text-muted-foreground">{type.type}</span>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      {type.count}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Public Source Types */}
-        <div>
-          <h5 className="font-semibold mb-3 flex items-center gap-2">
-            <Globe className="h-4 w-4 text-green-500" />
-            Public Source Breakdown
-          </h5>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {sources.public.types.map((source, index) => (
-              <div key={index} className="flex items-center justify-between border rounded-lg p-3">
-                <span className="text-sm font-medium">{source.type}</span>
-                <Badge variant="secondary">{source.count}</Badge>
+        {/* Source Quality Indicators */}
+        {reportSize !== 'small' && (
+          <div className="grid grid-cols-2 gap-3 pt-4 border-t">
+            <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <div className="flex items-center gap-2 mb-1">
+                <Shield className="h-4 w-4 text-blue-500" />
+                <span className="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
+                  Transparency
+                </span>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Confidential Source Types */}
-        {sources.confidential.count > 0 && (
-          <div>
-            <h5 className="font-semibold mb-3 flex items-center gap-2">
-              <Lock className="h-4 w-4 text-indigo-500" />
-              Confidential Source Breakdown
-            </h5>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {sources.confidential.types.map((source, index) => (
-                <div key={index} className="flex items-center justify-between border rounded-lg p-3">
-                  <span className="text-sm font-medium">{source.type}</span>
-                  <Badge variant="secondary">{source.count}</Badge>
-                </div>
-              ))}
+              <div className={`text-2xl font-bold ${
+                publicPercentage >= 80 ? 'text-green-500' :
+                publicPercentage >= 60 ? 'text-yellow-500' :
+                'text-orange-500'
+              }`}>
+                {publicPercentage >= 80 ? 'High' : publicPercentage >= 60 ? 'Medium' : 'Low'}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {publicPercentage}% publicly verifiable
+              </p>
+            </div>
+            
+            <div className="p-3 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+              <div className="flex items-center gap-2 mb-1">
+                <TrendingUp className="h-4 w-4 text-purple-500" />
+                <span className="text-xs font-semibold uppercase tracking-wide text-purple-700 dark:text-purple-300">
+                  Depth
+                </span>
+              </div>
+              <div className={`text-2xl font-bold ${
+                totalSources >= 50 ? 'text-green-500' :
+                totalSources >= 30 ? 'text-yellow-500' :
+                'text-orange-500'
+              }`}>
+                {totalSources >= 50 ? 'Deep' : totalSources >= 30 ? 'Moderate' : 'Limited'}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {totalSources} sources analyzed
+              </p>
             </div>
           </div>
         )}
 
-        {/* Source Type Legend */}
-        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-          <div className="flex items-start gap-3">
-            <FileText className="h-5 w-5 text-blue-500 mt-0.5" />
-            <div>
-              <h5 className="font-semibold mb-2">Source Types Explained</h5>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <p><strong>Public:</strong> Vendor documentation, CVE databases, compliance reports, security blogs</p>
-                <p><strong>Confidential:</strong> Internal testing, pentesting reports, private security assessments</p>
+        {/* Information boxes */}
+        {reportSize === 'full' && (
+          <div className="space-y-3 pt-4 border-t">
+            <div className="p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <div className="flex items-start gap-3">
+                <Globe className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h5 className="font-semibold text-sm text-green-900 dark:text-green-100 mb-1">
+                    Public Sources
+                  </h5>
+                  <p className="text-sm text-green-700 dark:text-green-300 mb-2">
+                    Information from vendor documentation, compliance reports, CVE databases, and independent security research. Fully transparent and verifiable.
+                  </p>
+                  <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                    <ExternalLink className="h-3 w-3" />
+                    <span>Can be independently verified</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-4 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+              <div className="flex items-start gap-3">
+                <Lock className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h5 className="font-semibold text-sm text-orange-900 dark:text-orange-100 mb-1">
+                    Confidential Sources
+                  </h5>
+                  <p className="text-sm text-orange-700 dark:text-orange-300 mb-2">
+                    Information from internal testing, penetration testing reports, and proprietary analysis. Not publicly verifiable but adds depth to assessment.
+                  </p>
+                  <div className="flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400">
+                    <Shield className="h-3 w-3" />
+                    <span>Conducted by security professionals</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+        )}
+
+        {/* Summary badges */}
+        <div className="flex flex-wrap gap-2 pt-4 border-t">
+          <Badge variant="outline" className="text-xs">
+            {totalSources} Total Sources
+          </Badge>
+          {publicPercentage >= 80 && (
+            <Badge className="bg-green-500/10 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800 text-xs">
+              <Globe className="h-3 w-3 mr-1" />
+              Highly Transparent
+            </Badge>
+          )}
+          {totalSources >= 50 && (
+            <Badge className="bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 text-xs">
+              <TrendingUp className="h-3 w-3 mr-1" />
+              Comprehensive Research
+            </Badge>
+          )}
+          {sources.confidential.count > 0 && (
+            <Badge className="bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800 text-xs">
+              <Lock className="h-3 w-3 mr-1" />
+              Includes Proprietary Analysis
+            </Badge>
+          )}
         </div>
       </CardContent>
     </Card>

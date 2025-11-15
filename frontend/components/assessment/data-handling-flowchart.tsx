@@ -1,161 +1,283 @@
-"use client"
+'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Database, ArrowRight, Send, BarChart3, Shield, Lock } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Assessment } from '@/lib/types';
+import { Database, ArrowRight, Cloud, Users, Shield, Lock, Unlock, AlertTriangle, CheckCircle, Radio } from 'lucide-react';
 
 interface DataHandlingFlowchartProps {
-  dataHandling: {
-    storage: {
-      location: string;
-      regions: string[];
-      cloudProvider?: string;
-      encryptionAtRest: boolean;
-    };
-    transmission: {
-      endpoints: string[];
-      subProcessors: string[];
-      encryptionInTransit: { tls: string; certVerified: boolean };
-    };
-    usage: {
-      analytics: boolean;
-      advertising: boolean;
-      aiTraining: boolean;
-      retentionPolicy: string;
-      userCanDelete: boolean;
-    };
-  };
+  dataHandling: Assessment['dataHandling'];
+  reportSize?: 'small' | 'medium' | 'full';
 }
 
-export function DataHandlingFlowchart({ dataHandling }: DataHandlingFlowchartProps) {
+export function DataHandlingFlowchart({ dataHandling, reportSize = 'medium' }: DataHandlingFlowchartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Data Handling & Flow</CardTitle>
-        <CardDescription>How your data is stored, transmitted, and used</CardDescription>
+        <CardTitle className="flex items-center gap-2">
+          <Database className="h-5 w-5 text-teal-500" />
+          Data Handling Flow
+        </CardTitle>
+        <CardDescription>
+          How your data is stored, transmitted, and used
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Flow Diagram */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* Storage */}
-          <div className="flex-1 border rounded-lg p-4 bg-teal-500/5 border-teal-500/20">
-            <div className="flex items-center gap-2 mb-3">
-              <Database className="h-5 w-5 text-teal-500" />
-              <h4 className="font-semibold">Storage</h4>
-            </div>
-            <div className="space-y-2 text-sm">
-              <p><span className="font-medium">Location:</span> {dataHandling.storage.location}</p>
-              <p><span className="font-medium">Regions:</span> {dataHandling.storage.regions.join(', ')}</p>
-              {dataHandling.storage.cloudProvider && (
-                <p><span className="font-medium">Provider:</span> {dataHandling.storage.cloudProvider}</p>
-              )}
-              <div className="flex items-center gap-2 mt-2">
-                {dataHandling.storage.encryptionAtRest ? (
-                  <>
-                    <Lock className="h-4 w-4 text-green-500" />
-                    <span className="text-green-500 font-medium">Encrypted at Rest</span>
-                  </>
-                ) : (
-                  <>
-                    <Shield className="h-4 w-4 text-red-500" />
-                    <span className="text-red-500 font-medium">Not Encrypted</span>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <ArrowRight className="h-8 w-8 text-muted-foreground hidden md:block" />
-
-          {/* Transmission */}
-          <div className="flex-1 border rounded-lg p-4 bg-blue-500/5 border-blue-500/20">
-            <div className="flex items-center gap-2 mb-3">
-              <Send className="h-5 w-5 text-blue-500" />
-              <h4 className="font-semibold">Transmission</h4>
-            </div>
-            <div className="space-y-2 text-sm">
-              <div>
-                <p className="font-medium mb-1">Endpoints:</p>
-                <div className="flex flex-wrap gap-1">
-                  {dataHandling.transmission.endpoints.map((endpoint) => (
-                    <Badge key={endpoint} variant="secondary" className="text-xs">
-                      {endpoint}
-                    </Badge>
-                  ))}
+        {/* Flow visualization */}
+        <div className="relative">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            {/* Storage */}
+            <div className="flex-1 w-full">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-lg blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
+                <div className="relative p-6 bg-white dark:bg-gray-900 border-2 border-teal-500 rounded-lg">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Database className="h-6 w-6 text-teal-500" />
+                    <h3 className="font-semibold text-lg">Storage</h3>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Location</p>
+                      <p className="font-medium text-sm">{dataHandling.storage.location}</p>
+                    </div>
+                    
+                    {reportSize !== 'small' && (
+                      <>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Regions</p>
+                          <div className="flex flex-wrap gap-1">
+                            {dataHandling.storage.regions.map(region => (
+                              <Badge key={region} variant="outline" className="text-xs">
+                                {region}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        {dataHandling.storage.cloudProvider && (
+                          <div>
+                            <p className="text-sm text-muted-foreground mb-1">Cloud Provider</p>
+                            <Badge variant="secondary" className="text-xs">
+                              <Cloud className="h-3 w-3 mr-1" />
+                              {dataHandling.storage.cloudProvider}
+                            </Badge>
+                          </div>
+                        )}
+                      </>
+                    )}
+                    
+                    <div className="flex items-center gap-2 pt-2 border-t">
+                      {dataHandling.storage.encryptionAtRest ? (
+                        <>
+                          <Lock className="h-4 w-4 text-green-500" />
+                          <span className="text-sm text-green-600 dark:text-green-400 font-medium">
+                            Encrypted at rest
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <Unlock className="h-4 w-4 text-red-500" />
+                          <span className="text-sm text-red-600 dark:text-red-400 font-medium">
+                            Not encrypted at rest
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                {dataHandling.transmission.encryptionInTransit.certVerified ? (
-                  <>
-                    <Lock className="h-4 w-4 text-green-500" />
-                    <span className="text-green-500 font-medium">
-                      {dataHandling.transmission.encryptionInTransit.tls}
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-yellow-500 font-medium">Unverified Cert</span>
-                )}
+            </div>
+
+            {/* Arrow */}
+            <ArrowRight className="h-8 w-8 text-muted-foreground hidden md:block flex-shrink-0" />
+            <div className="md:hidden">
+              <ArrowRight className="h-6 w-6 text-muted-foreground rotate-90" />
+            </div>
+
+            {/* Transmission */}
+            <div className="flex-1 w-full">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
+                <div className="relative p-6 bg-white dark:bg-gray-900 border-2 border-blue-500 rounded-lg">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Radio className="h-6 w-6 text-blue-500" />
+                    <h3 className="font-semibold text-lg">Transmission</h3>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {reportSize !== 'small' && (
+                      <>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Endpoints</p>
+                          <div className="flex flex-wrap gap-1">
+                            {dataHandling.transmission.endpoints.slice(0, reportSize === 'full' ? undefined : 2).map(endpoint => (
+                              <Badge key={endpoint} variant="outline" className="text-xs font-mono">
+                                {endpoint}
+                              </Badge>
+                            ))}
+                            {reportSize !== 'full' && dataHandling.transmission.endpoints.length > 2 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{dataHandling.transmission.endpoints.length - 2} more
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {reportSize === 'full' && dataHandling.transmission.subProcessors.length > 0 && (
+                          <div>
+                            <p className="text-sm text-muted-foreground mb-1">Sub-processors</p>
+                            <div className="flex flex-wrap gap-1">
+                              {dataHandling.transmission.subProcessors.map(sub => (
+                                <Badge key={sub} variant="secondary" className="text-xs">
+                                  {sub}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                    
+                    <div className="pt-2 border-t space-y-2">
+                      <div className="flex items-center gap-2">
+                        {dataHandling.transmission.encryptionInTransit.certVerified ? (
+                          <Shield className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                        )}
+                        <span className="text-sm font-medium">
+                          {dataHandling.transmission.encryptionInTransit.tls}
+                        </span>
+                      </div>
+                      {dataHandling.transmission.encryptionInTransit.certVerified && (
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-3 w-3 text-green-500" />
+                          <span className="text-xs text-green-600 dark:text-green-400">
+                            Certificate verified
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <ArrowRight className="h-8 w-8 text-muted-foreground hidden md:block" />
-
-          {/* Usage */}
-          <div className="flex-1 border rounded-lg p-4 bg-purple-500/5 border-purple-500/20">
-            <div className="flex items-center gap-2 mb-3">
-              <BarChart3 className="h-5 w-5 text-purple-500" />
-              <h4 className="font-semibold">Usage</h4>
+            {/* Arrow */}
+            <ArrowRight className="h-8 w-8 text-muted-foreground hidden md:block flex-shrink-0" />
+            <div className="md:hidden">
+              <ArrowRight className="h-6 w-6 text-muted-foreground rotate-90" />
             </div>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <Badge variant={dataHandling.usage.analytics ? "default" : "secondary"}>
-                  Analytics: {dataHandling.usage.analytics ? 'Yes' : 'No'}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant={dataHandling.usage.advertising ? "destructive" : "secondary"}>
-                  Ads: {dataHandling.usage.advertising ? 'Yes' : 'No'}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant={dataHandling.usage.aiTraining ? "default" : "secondary"}>
-                  AI Training: {dataHandling.usage.aiTraining ? 'Yes' : 'No'}
-                </Badge>
+
+            {/* Usage */}
+            <div className="flex-1 w-full">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
+                <div className="relative p-6 bg-white dark:bg-gray-900 border-2 border-purple-500 rounded-lg">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Users className="h-6 w-6 text-purple-500" />
+                    <h3 className="font-semibold text-lg">Usage</h3>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>Analytics</span>
+                      {dataHandling.usage.analytics ? (
+                        <Badge variant="outline" className="bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300">
+                          Yes
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300">
+                          No
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-sm">
+                      <span>Advertising</span>
+                      {dataHandling.usage.advertising ? (
+                        <Badge variant="outline" className="bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300">
+                          Yes
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300">
+                          No
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-sm">
+                      <span>AI Training</span>
+                      {dataHandling.usage.aiTraining ? (
+                        <Badge variant="outline" className="bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300">
+                          Yes
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300">
+                          No
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    {reportSize !== 'small' && (
+                      <>
+                        <div className="pt-2 border-t">
+                          <p className="text-xs text-muted-foreground mb-1">Retention</p>
+                          <p className="text-sm font-medium">{dataHandling.usage.retentionPolicy}</p>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 pt-1">
+                          {dataHandling.usage.userCanDelete ? (
+                            <>
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                              <span className="text-sm text-green-600 dark:text-green-400">
+                                Users can delete data
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <AlertTriangle className="h-4 w-4 text-orange-500" />
+                              <span className="text-sm text-orange-600 dark:text-orange-400">
+                                Limited deletion rights
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Additional Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="border rounded-lg p-4">
-            <h5 className="font-semibold mb-2">Retention Policy</h5>
-            <p className="text-sm text-muted-foreground">{dataHandling.usage.retentionPolicy}</p>
-          </div>
-          <div className="border rounded-lg p-4">
-            <h5 className="font-semibold mb-2">User Control</h5>
-            <p className="text-sm text-muted-foreground">
-              {dataHandling.usage.userCanDelete 
-                ? "✅ Users can delete their data" 
-                : "❌ Limited data deletion options"}
-            </p>
-          </div>
+        {/* Summary badges */}
+        <div className="flex flex-wrap gap-2 pt-4 border-t">
+          {dataHandling.storage.encryptionAtRest && (
+            <Badge className="bg-green-500/10 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
+              <Lock className="h-3 w-3 mr-1" />
+              Encrypted Storage
+            </Badge>
+          )}
+          {dataHandling.transmission.encryptionInTransit.tls.includes('1.3') && (
+            <Badge className="bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+              <Shield className="h-3 w-3 mr-1" />
+              TLS 1.3
+            </Badge>
+          )}
+          {!dataHandling.usage.advertising && (
+            <Badge className="bg-green-500/10 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
+              No Advertising
+            </Badge>
+          )}
+          {dataHandling.usage.userCanDelete && (
+            <Badge className="bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800">
+              User-controlled Deletion
+            </Badge>
+          )}
         </div>
-
-        {/* Sub-processors */}
-        {dataHandling.transmission.subProcessors.length > 0 && (
-          <div className="border rounded-lg p-4 bg-muted/20">
-            <h5 className="font-semibold mb-2">Sub-processors</h5>
-            <div className="flex flex-wrap gap-2">
-              {dataHandling.transmission.subProcessors.map((processor) => (
-                <Badge key={processor} variant="outline">
-                  {processor}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

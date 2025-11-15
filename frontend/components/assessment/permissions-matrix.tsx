@@ -1,8 +1,8 @@
-"use client"
+'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Info, CheckCircle } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { AlertTriangle, Info, CheckCircle, Shield, Lock } from 'lucide-react';
 
 interface PermissionsMatrixProps {
   permissions: {
@@ -18,59 +18,129 @@ interface PermissionsMatrixProps {
     }>;
     overPermissioningRisk?: string;
   };
+  reportSize?: 'small' | 'medium' | 'full';
 }
 
-export function PermissionsMatrix({ permissions }: PermissionsMatrixProps) {
-  const getRiskColor = (level: string) => {
-    switch (level) {
-      case 'high': return { bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-500', variant: 'destructive' as const };
-      case 'medium': return { bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', text: 'text-yellow-500', variant: 'default' as const };
-      case 'low': return { bg: 'bg-green-500/10', border: 'border-green-500/20', text: 'text-green-500', variant: 'secondary' as const };
-      default: return { bg: 'bg-muted', border: 'border-muted', text: 'text-muted-foreground', variant: 'secondary' as const };
-    }
-  };
+const riskLevelConfig = {
+  low: {
+    color: 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800',
+    textColor: 'text-green-700 dark:text-green-300',
+    badgeColor: 'bg-green-500',
+    icon: CheckCircle,
+  },
+  medium: {
+    color: 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800',
+    textColor: 'text-yellow-700 dark:text-yellow-300',
+    badgeColor: 'bg-yellow-500',
+    icon: AlertTriangle,
+  },
+  high: {
+    color: 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800',
+    textColor: 'text-red-700 dark:text-red-300',
+    badgeColor: 'bg-red-500',
+    icon: AlertTriangle,
+  },
+};
 
-  const getRiskIcon = (level: string) => {
-    switch (level) {
-      case 'high': return <AlertTriangle className="h-4 w-4 text-red-500" />;
-      case 'medium': return <Info className="h-4 w-4 text-yellow-500" />;
-      case 'low': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      default: return <Info className="h-4 w-4" />;
-    }
+export function PermissionsMatrix({ permissions, reportSize = 'medium' }: PermissionsMatrixProps) {
+  const allPermissions = [
+    ...permissions.required.map(p => ({ ...p, type: 'required' as const })),
+    ...permissions.optional.map(p => ({ ...p, type: 'optional' as const })),
+  ];
+
+  // Calculate risk summary
+  const riskCounts = {
+    low: allPermissions.filter(p => p.riskLevel === 'low').length,
+    medium: allPermissions.filter(p => p.riskLevel === 'medium').length,
+    high: allPermissions.filter(p => p.riskLevel === 'high').length,
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Permissions & Access Requirements</CardTitle>
-        <CardDescription>What the application can access and why</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-orange-500" />
+              Permissions & Access
+            </CardTitle>
+            <CardDescription>
+              {permissions.required.length} required, {permissions.optional.length} optional
+            </CardDescription>
+          </div>
+          
+          {/* Risk summary */}
+          <div className="flex gap-2">
+            {riskCounts.high > 0 && (
+              <div className="text-center">
+                <div className="text-2xl font-bold text-red-500">{riskCounts.high}</div>
+                <div className="text-xs text-muted-foreground">High Risk</div>
+              </div>
+            )}
+            {riskCounts.medium > 0 && (
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-500">{riskCounts.medium}</div>
+                <div className="text-xs text-muted-foreground">Medium Risk</div>
+              </div>
+            )}
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Over-permissioning warning */}
+        {permissions.overPermissioningRisk && reportSize !== 'small' && (
+          <div className="p-4 bg-orange-50 dark:bg-orange-950/20 border-l-4 border-orange-500 rounded-r-lg">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-sm text-orange-900 dark:text-orange-100 mb-1">
+                  Over-permissioning Risk Detected
+                </h4>
+                <p className="text-sm text-orange-700 dark:text-orange-300">
+                  {permissions.overPermissioningRisk}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Required Permissions */}
         <div>
-          <h4 className="font-semibold mb-3 flex items-center gap-2">
-            Required Permissions
-            <Badge variant="outline">{permissions.required?.length || 0}</Badge>
-          </h4>
+          <div className="flex items-center gap-2 mb-3">
+            <Lock className="h-4 w-4 text-muted-foreground" />
+            <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
+              Required Permissions
+            </h3>
+          </div>
           <div className="space-y-2">
-            {permissions.required && permissions.required.map((perm, index) => {
-              const colors = getRiskColor(perm.riskLevel);
+            {permissions.required.map((permission, index) => {
+              const config = riskLevelConfig[permission.riskLevel];
+              const Icon = config.icon;
+              
               return (
                 <div
                   key={index}
-                  className={`border rounded-lg p-4 ${colors.bg} ${colors.border}`}
+                  className={`p-4 rounded-lg border-l-4 transition-all duration-200 hover:shadow-md ${config.color}`}
                 >
-                  <div className="flex items-start gap-3">
-                    {getRiskIcon(perm.riskLevel)}
+                  <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <h5 className="font-semibold">{perm.name}</h5>
-                        <Badge variant={colors.variant} className="text-xs">
-                          {perm.riskLevel.toUpperCase()} RISK
+                      <div className="flex items-center gap-2 mb-1">
+                        <Icon className={`h-4 w-4 ${config.textColor}`} />
+                        <h4 className="font-semibold text-sm">{permission.name}</h4>
+                        <Badge 
+                          variant="outline" 
+                          className={`text-xs ${config.textColor} border-current`}
+                        >
+                          {permission.riskLevel}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">{perm.justification}</p>
+                      {reportSize !== 'small' && (
+                        <p className="text-sm text-muted-foreground ml-6">
+                          {permission.justification}
+                        </p>
+                      )}
                     </div>
+                    <div className={`h-2 w-2 rounded-full ${config.badgeColor} flex-shrink-0 mt-1.5`} />
                   </div>
                 </div>
               );
@@ -79,31 +149,49 @@ export function PermissionsMatrix({ permissions }: PermissionsMatrixProps) {
         </div>
 
         {/* Optional Permissions */}
-        {permissions.optional && permissions.optional.length > 0 && (
+        {permissions.optional.length > 0 && (
           <div>
-            <h4 className="font-semibold mb-3 flex items-center gap-2">
-              Optional Permissions
-              <Badge variant="outline">{permissions.optional.length}</Badge>
-            </h4>
+            <div className="flex items-center gap-2 mb-3">
+              <Info className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
+                Optional Permissions
+              </h3>
+              <Badge variant="secondary" className="text-xs">
+                Can be disabled
+              </Badge>
+            </div>
             <div className="space-y-2">
-              {permissions.optional.map((perm, index) => {
-                const colors = getRiskColor(perm.riskLevel);
+              {permissions.optional.map((permission, index) => {
+                const config = riskLevelConfig[permission.riskLevel];
+                const Icon = config.icon;
+                
                 return (
                   <div
                     key={index}
-                    className={`border rounded-lg p-4 ${colors.bg} ${colors.border}`}
+                    className={`p-4 rounded-lg border-l-4 transition-all duration-200 hover:shadow-md ${config.color} opacity-90`}
                   >
-                    <div className="flex items-start gap-3">
-                      {getRiskIcon(perm.riskLevel)}
+                    <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <h5 className="font-semibold">{perm.name}</h5>
-                          <Badge variant={colors.variant} className="text-xs">
-                            {perm.riskLevel.toUpperCase()} RISK
+                        <div className="flex items-center gap-2 mb-1">
+                          <Icon className={`h-4 w-4 ${config.textColor}`} />
+                          <h4 className="font-semibold text-sm">{permission.name}</h4>
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs ${config.textColor} border-current`}
+                          >
+                            {permission.riskLevel}
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+                            Optional
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">{perm.justification}</p>
+                        {reportSize !== 'small' && (
+                          <p className="text-sm text-muted-foreground ml-6">
+                            {permission.justification}
+                          </p>
+                        )}
                       </div>
+                      <div className={`h-2 w-2 rounded-full ${config.badgeColor} opacity-60 flex-shrink-0 mt-1.5`} />
                     </div>
                   </div>
                 );
@@ -112,18 +200,62 @@ export function PermissionsMatrix({ permissions }: PermissionsMatrixProps) {
           </div>
         )}
 
-        {/* Over-permissioning Risk Warning */}
-        {permissions.overPermissioningRisk && (
-          <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-orange-500 mt-0.5" />
-              <div>
-                <h5 className="font-semibold mb-1 text-orange-500">Over-Permissioning Risk</h5>
-                <p className="text-sm text-muted-foreground">{permissions.overPermissioningRisk}</p>
+        {/* Risk distribution visualization */}
+        {reportSize === 'full' && (
+          <div className="pt-4 border-t">
+            <h4 className="text-sm font-semibold mb-3">Risk Distribution</h4>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="w-20 text-sm text-muted-foreground">Low</div>
+                <div className="flex-1 h-6 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-green-500 transition-all duration-500"
+                    style={{ width: `${(riskCounts.low / allPermissions.length) * 100}%` }}
+                  />
+                </div>
+                <div className="w-12 text-right text-sm font-semibold">{riskCounts.low}</div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-20 text-sm text-muted-foreground">Medium</div>
+                <div className="flex-1 h-6 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-yellow-500 transition-all duration-500"
+                    style={{ width: `${(riskCounts.medium / allPermissions.length) * 100}%` }}
+                  />
+                </div>
+                <div className="w-12 text-right text-sm font-semibold">{riskCounts.medium}</div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-20 text-sm text-muted-foreground">High</div>
+                <div className="flex-1 h-6 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-red-500 transition-all duration-500"
+                    style={{ width: `${(riskCounts.high / allPermissions.length) * 100}%` }}
+                  />
+                </div>
+                <div className="w-12 text-right text-sm font-semibold">{riskCounts.high}</div>
               </div>
             </div>
           </div>
         )}
+
+        {/* Summary badges */}
+        <div className="flex flex-wrap gap-2 pt-4 border-t">
+          <Badge variant="outline" className="text-xs">
+            {permissions.required.length + permissions.optional.length} Total Permissions
+          </Badge>
+          {riskCounts.high === 0 && (
+            <Badge className="bg-green-500/10 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800 text-xs">
+              <CheckCircle className="h-3 w-3 mr-1" />
+              No High-Risk Permissions
+            </Badge>
+          )}
+          {permissions.optional.length > 0 && (
+            <Badge className="bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 text-xs">
+              {permissions.optional.length} Permissions Can Be Disabled
+            </Badge>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
