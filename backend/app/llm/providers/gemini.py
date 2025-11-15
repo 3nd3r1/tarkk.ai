@@ -1,5 +1,9 @@
+import asyncio
 from collections.abc import AsyncGenerator
 from typing import Any
+
+import google.generativeai as genai
+from google.generativeai.types import GenerationConfig
 
 from app.config import settings
 
@@ -11,9 +15,15 @@ class GeminiProvider(LLMProvider):
         self,
         **kwargs: Any,
     ) -> None:
+        if not settings.GEMINI_API_KEY:
+            raise LLMValidationError("GEMINI_API_KEY is required")
+
         self._api_key = settings.GEMINI_API_KEY
-        self._model = settings.GEMINI_MODEL
-        self._client = None
+        self._model_name = settings.GEMINI_MODEL
+
+        # Configure the Gemini API
+        genai.configure(api_key=self._api_key)
+        self._model = genai.GenerativeModel(self._model_name)
 
     async def generate(
         self,
@@ -27,11 +37,28 @@ class GeminiProvider(LLMProvider):
         temperature = temperature or 0.5
 
         try:
-            # TODO: Implement Gemini API call here
-            return "Hello world"
+            # Convert messages to Gemini format
+            prompt = self._convert_messages_to_prompt(messages)
+
+            # Configure generation parameters
+            generation_config = GenerationConfig(
+                max_output_tokens=max_tokens,
+                temperature=temperature,
+            )
+
+            # Generate response using asyncio
+            response = await asyncio.to_thread(
+                self._model.generate_content, prompt, generation_config=generation_config
+            )
+
+            if not response.text:
+                raise LLMConnectionError("Empty response from Gemini API")
+
+            return response.text
+
         except Exception as e:
             error_str = str(e).lower()
-            if "rate_limit" in error_str or "429" in error_str:
+            if "rate_limit" in error_str or "429" in error_str or "quota" in error_str:
                 raise LLMRateLimitError(f"Gemini rate limit exceeded: {e}") from e
             elif (
                 "validation" in error_str
@@ -64,15 +91,34 @@ class GeminiProvider(LLMProvider):
         **kwargs: Any,
     ) -> AsyncGenerator[str, None]:
         # Set defaults
-        max_tokens = max_tokens or 1000
-        temperature = temperature or 0.7
+        max_tokens = max_tokens or 2048
+        temperature = temperature or 0.5
 
         try:
-            # TODO: Implement Gemini streaming API call here
-            yield "Hello"
+            # Convert messages to Gemini format
+            prompt = self._convert_messages_to_prompt(messages)
+
+            # Configure generation parameters
+            generation_config = GenerationConfig(
+                max_output_tokens=max_tokens,
+                temperature=temperature,
+            )
+
+            # Generate streaming response
+            response_stream = await asyncio.to_thread(
+                self._model.generate_content,
+                prompt,
+                generation_config=generation_config,
+                stream=True,
+            )
+
+            for chunk in response_stream:
+                if chunk.text:
+                    yield chunk.text
+
         except Exception as e:
             error_str = str(e).lower()
-            if "rate_limit" in error_str or "429" in error_str:
+            if "rate_limit" in error_str or "429" in error_str or "quota" in error_str:
                 raise LLMRateLimitError(f"Gemini rate limit exceeded: {e}") from e
             elif (
                 "validation" in error_str
@@ -87,3 +133,26 @@ class GeminiProvider(LLMProvider):
                 raise LLMConnectionError(f"Gemini connection error: {e}") from e
             else:
                 raise LLMConnectionError(f"Gemini API error: {e}") from e
+
+    def _convert_messages_to_prompt(self, messages: list[dict[str, str]]) -> str:
+        """
+        Convert OpenAI-style messages to a single prompt string for Gemini.
+        Gemini expects a single prompt rather than a conversation format.
+        """
+        prompt_parts = []
+
+        for message in messages:
+            role = message.get("role", "user")
+            content = message.get("content", "")
+
+            if role == "system":
+                prompt_parts.append(f"Instructions: {content}")
+            elif role == "user":
+                prompt_parts.append(f"User: {content}")
+            elif role == "assistant":
+                prompt_parts.append(f"Assistant: {content}")
+            else:
+                # Fallback for unknown roles
+                prompt_parts.append(f"{role}: {content}")
+
+        return "\n\n".join(prompt_parts)
