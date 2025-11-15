@@ -2,6 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+import { useId } from "react";
 
 interface LogoProps {
   className?: string;
@@ -12,6 +13,7 @@ export function Logo({ className, size = 24 }: LogoProps) {
   const { theme } = useTheme();
   const isMatrix = theme === "matrix";
   const strokeColor = isMatrix ? "#00ff00" : "currentColor";
+  const filterId = useId();
 
   return (
     <svg
@@ -25,7 +27,7 @@ export function Logo({ className, size = 24 }: LogoProps) {
       {/* Glow effect for matrix theme */}
       {isMatrix && (
         <defs>
-          <filter id="matrixGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <filter id={`matrixGlow-${filterId}`} x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
             <feMerge>
               <feMergeNode in="coloredBlur"/>
@@ -36,7 +38,7 @@ export function Logo({ className, size = 24 }: LogoProps) {
       )}
       
       {/* Letter T - horizontal bar at top, vertical stem */}
-      <g filter={isMatrix ? "url(#matrixGlow)" : undefined}>
+      <g filter={isMatrix ? `url(#matrixGlow-${filterId})` : undefined}>
         {/* Horizontal bar */}
         <line
           x1="12"
@@ -60,7 +62,7 @@ export function Logo({ className, size = 24 }: LogoProps) {
       </g>
       
       {/* Checkmark - V shape below the T */}
-      <g filter={isMatrix ? "url(#matrixGlow)" : undefined}>
+      <g filter={isMatrix ? `url(#matrixGlow-${filterId})` : undefined}>
         <path
           d="M16 30 L22 36 L32 22"
           stroke={strokeColor}

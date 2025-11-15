@@ -1,10 +1,12 @@
 "use client"
 
 import { motion } from "framer-motion";
+import { useTheme } from "next-themes";
 import { Check, X, Sparkles, Zap, Rocket, Building2, Shield } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface PricingFeature {
   name: string;
@@ -139,14 +141,23 @@ const pricingPlans: PricingPlan[] = [
 ];
 
 export default function PricingPage() {
+  const { theme } = useTheme();
+  const isMatrix = theme === "matrix";
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-primary/5 to-background">
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20">
         {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className={cn(
+            "absolute top-20 right-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse",
+            isMatrix ? "bg-[#00ff00]/10" : "bg-purple-500/10"
+          )}></div>
+          <div className={cn(
+            "absolute bottom-20 left-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse delay-1000",
+            isMatrix ? "bg-[#00ff00]/10" : "bg-blue-500/10"
+          )}></div>
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
@@ -164,29 +175,61 @@ export default function PricingPage() {
               className="flex justify-center"
             >
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur-xl opacity-30 animate-pulse"></div>
-                <div className="relative bg-gradient-to-br from-purple-500 to-blue-600 p-4 rounded-2xl">
-                  <Shield className="h-12 w-12 text-white" />
+                <div className={cn(
+                  "absolute inset-0 rounded-2xl blur-xl opacity-30 animate-pulse",
+                  isMatrix 
+                    ? "bg-gradient-to-r from-[#00ff00] to-[#00ff00]" 
+                    : "bg-gradient-to-r from-purple-600 to-blue-600"
+                )}></div>
+                <div className={cn(
+                  "relative p-4 rounded-2xl",
+                  isMatrix 
+                    ? "bg-gradient-to-br from-[#00ff00]/20 to-[#00ff00]/30 border border-[#00ff00]/50" 
+                    : "bg-gradient-to-br from-purple-500 to-blue-600"
+                )}>
+                  <Shield className={cn(
+                    "h-12 w-12",
+                    isMatrix ? "text-[#00ff00]" : "text-white"
+                  )} />
                 </div>
               </div>
             </motion.div>
 
             <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
-              <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 bg-clip-text text-transparent animate-gradient">
+              <span className={cn(
+                isMatrix 
+                  ? "text-[#00ff00] matrix-hero-text" 
+                  : "bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 bg-clip-text text-transparent animate-gradient"
+              )}>
                 Choose Your Plan
               </span>
             </h1>
-            <p className="text-xl text-muted-foreground">
+            <p className={cn(
+              "text-xl",
+              isMatrix ? "text-[#00ff00]/80" : "text-muted-foreground"
+            )}>
               Scale your security assessments with flexible pricing that grows with your needs
             </p>
-            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <Check className="h-4 w-4 text-green-500" />
+            <div className={cn(
+              "flex items-center justify-center gap-2 text-sm",
+              isMatrix ? "text-[#00ff00]/80" : "text-muted-foreground"
+            )}>
+              <Check className={cn(
+                "h-4 w-4",
+                isMatrix ? "text-[#00ff00]" : "text-green-500"
+              )} />
               <span>No credit card required</span>
               <span>•</span>
-              <Check className="h-4 w-4 text-green-500" />
+              <Check className={cn(
+                "h-4 w-4",
+                isMatrix ? "text-[#00ff00]" : "text-green-500"
+              )} />
               <span>14-day free trial</span>
               <span>•</span>
-              <Check className="h-4 w-4 text-green-500" />
+              <Check className={cn(
+                "h-4 w-4",
+                isMatrix ? "text-[#00ff00]" : "text-green-500"
+              )} />
               <span>Cancel anytime</span>
             </div>
           </motion.div>
