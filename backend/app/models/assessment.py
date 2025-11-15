@@ -15,7 +15,7 @@ class Assessment(Base):
 
     # Input data fields
     input_name = Column(String(255), nullable=False, index=True)
-    input_vendor_name = Column(String(255), nullable=False, index=True)
+    input_vendor_name = Column(String(255), nullable=True)
     input_url = Column(Text, nullable=True)
 
     # Assessment metadata
