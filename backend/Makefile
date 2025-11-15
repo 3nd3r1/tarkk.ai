@@ -34,6 +34,7 @@ lint:
 format:
 	@echo "✨ Formatting code..."
 	$(PYTHON_VENV) -m ruff format app/
+	$(PYTHON_VENV) -m ruff check --fix app/
 
 .PHONY: docker-up
 docker-up:
