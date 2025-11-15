@@ -46,6 +46,7 @@ export interface Location {
 export interface Vendor {
   name: string;
   website?: string | null;
+  logo_url?: string | null;
   location?: Location | null;
   founded_year?: number | null;
   employee_count?: number | null;
@@ -478,7 +479,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
  */
 export async function getSearchSuggestions(query: string): Promise<string[]> {
   const assessments = await getAllAssessments();
-  const productNames = [...new Set(assessments.map((a) => a.product.name))];
+  const productNames = Array.from(new Set(assessments.map((a) => a.product.name)));
   
   if (!query) {
     return productNames.slice(0, 5);

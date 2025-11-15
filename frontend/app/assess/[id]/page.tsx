@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, ExternalLink, Shield, Building2, Calendar, Download } from "lucide-react";
+import { ArrowLeft, ExternalLink, Shield, Building2, Calendar, Download, Sparkles, Info } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,8 +11,15 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Assessment, ReportSize } from "@/lib/types";
-import { getAssessment } from "@/lib/api";
+import { getAssessment as getApiAssessment } from "@/lib/api";
+import { getAssessment as getMockAssessment } from "@/lib/api-mock";
 import { formatDate } from "@/lib/utils";
+
+// Extended Assessment type with source information
+type AssessmentWithSource = Assessment & {
+  source?: 'api' | 'mock';
+  isFullReport?: boolean;
+};
 import { generatePDFReport, shouldShowSection, getReportConfig } from "@/lib/pdf-generator";
 
 // Import all assessment components
@@ -39,16 +46,44 @@ import { StatusBanner } from "@/components/assessment/status-banner";
 
 export default function AssessmentPage() {
   const params = useParams();
-  const [assessment, setAssessment] = useState<Assessment | null>(null);
+  const [assessment, setAssessment] = useState<AssessmentWithSource | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [reportSize, setReportSize] = useState<ReportSize>('enterprise');
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchAssessment = useCallback(async () => {
-    if (params.id) {
-      const data = await getAssessment(params.id as string);
+    if (!params.id) return;
+    
+    try {
+      // Try to fetch from both sources in parallel
+      const [apiData, mockData] = await Promise.all([
+        getApiAssessment(params.id as string).catch(() => null),
+        getMockAssessment(params.id as string).catch(() => null)
+      ]);
+
+      // Prefer mock data (full report) if available, otherwise use API data
+      let data: AssessmentWithSource | null = null;
+      
+      if (mockData) {
+        data = {
+          ...mockData,
+          source: 'mock',
+          isFullReport: true
+        };
+      } else if (apiData) {
+        data = {
+          ...apiData,
+          source: 'api',
+          isFullReport: false
+        };
+      }
+
       setAssessment(data);
+      setIsLoading(false);
+      setIsRefreshing(false);
+    } catch (error) {
+      console.error('Error fetching assessment:', error);
       setIsLoading(false);
       setIsRefreshing(false);
     }
@@ -137,9 +172,23 @@ export default function AssessmentPage() {
             <div className="flex items-center gap-4">
               <ProductLogo logo={assessment.product.logo} size="xl" />
               <div>
-                <h1 className="text-4xl font-bold">{assessment.product.name}</h1>
+                <div className="flex items-center gap-3 mb-1">
+                  <h1 className="text-4xl font-bold">{assessment.product.name}</h1>
+                  {/* Report Type Badge - Prominent */}
+                  {assessment.isFullReport ? (
+                    <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-sm font-semibold px-3 py-1">
+                      <Sparkles className="h-4 w-4 mr-1.5" />
+                      Full Report
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30 text-sm font-semibold px-3 py-1">
+                      <Info className="h-4 w-4 mr-1.5" />
+                      Basic Info
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-xl text-muted-foreground">by {assessment.product.vendor}</p>
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-2 mt-2 flex-wrap">
                   <Badge>{assessment.product.category}</Badge>
                   {assessment.cached && <Badge variant="outline">Cached</Badge>}
                   <Badge variant="secondary" className="gap-1">
@@ -186,6 +235,52 @@ export default function AssessmentPage() {
               />
             </motion.div>
           )}
+          {/* Report Type Info Banner */}
+          {assessment.isFullReport !== undefined && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+            >
+              <Card className={assessment.isFullReport 
+                ? 'border-emerald-500/50 bg-emerald-50/50 dark:bg-emerald-950/20' 
+                : 'border-blue-500/50 bg-blue-50/50 dark:bg-blue-950/20'
+              }>
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3">
+                    {assessment.isFullReport ? (
+                      <>
+                        <Sparkles className="h-5 w-5 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-emerald-900 dark:text-emerald-100 mb-1">
+                            Complete Security Assessment
+                          </h3>
+                          <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                            This is a comprehensive security assessment with complete data including vulnerabilities, 
+                            compliance certifications, incident history, and detailed technical analysis.
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                            Basic Information Available
+                          </h3>
+                          <p className="text-sm text-blue-700 dark:text-blue-300">
+                            This assessment contains basic product and vendor information. Some sections may be limited 
+                            or unavailable until the full assessment is completed.
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
           {/* Report Size Selector with Download Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
