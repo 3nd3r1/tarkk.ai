@@ -4,6 +4,16 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 
+class CPE(BaseModel):
+    """Common Platform Enumeration identifier."""
+
+    vendor: str = Field(..., description="Vendor name for CPE")
+    product: str = Field(..., description="Product name for CPE")
+    full_cpe: str = Field(
+        ..., description="Full CPE string (e.g., 'cpe:2.3:a:slack:slack:*:*:*:*:*:*:*:*')"
+    )
+
+
 class CVESeverity(str, Enum):
     CRITICAL = "CRITICAL"
     HIGH = "HIGH"
@@ -13,12 +23,13 @@ class CVESeverity(str, Enum):
 
 
 class CVEStatus(str, Enum):
-    RECEIVED = "RECEIVED"
-    AWAITING_ANALYSIS = "AWAITING_ANALYSIS"
-    UNDERGOING_ANALYSIS = "UNDERGOING_ANALYSIS"
-    MODIFIED = "MODIFIED"
-    PUBLISHED = "PUBLISHED"
-    REJECTED = "REJECTED"
+    RECEIVED = "Received"
+    AWAITING_ANALYSIS = "Awaiting Analysis"
+    UNDERGOING_ANALYSIS = "Undergoing Analysis"
+    MODIFIED = "Modified"
+    PUBLISHED = "Published"
+    REJECTED = "Rejected"
+    DEFERRED = "Deferred"
 
 
 class CVSS(BaseModel):
