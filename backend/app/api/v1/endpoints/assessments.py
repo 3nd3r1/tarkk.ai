@@ -4,7 +4,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends
 from pydantic import BaseModel
 
 from app.dependencies import get_assessment_service
-from app.schemas.assessment import AssessmentInputData, AssessmentType
+from app.schemas.assessment import Assessment, AssessmentInputData, AssessmentType
 from app.services.assessment import AssessmentService
 
 router = APIRouter()
@@ -43,9 +43,12 @@ async def create_assesment(
     )
 
 
-@router.get("")
-def get_assesments():
-    return "List of assesments"
+@router.get("", response_model=list[Assessment])
+async def get_assessments(
+    assessment_service: AssessmentService = Depends(get_assessment_service),
+):
+    """Get all assessments."""
+    return await assessment_service.get_assessments()
 
 
 @router.get("/{assesment_id}")

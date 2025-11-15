@@ -68,6 +68,14 @@ class AssessmentService:
 
         return Assessment.from_model(db_assessment)
 
+    async def get_assessments(self) -> list[Assessment]:
+        """Fetch all assessments from database."""
+        db = self._get_db()
+
+        db_assessments = db.query(AssessmentModel).all()
+
+        return [Assessment.from_model(db_assessment) for db_assessment in db_assessments]
+
     async def update_assessment_status(self, assessment_id: UUID, status: AssessmentStatus) -> bool:
         """Update assessment status in database."""
         db = self._get_db()
