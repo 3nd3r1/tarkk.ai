@@ -34,6 +34,7 @@ Security teams are constantly asked to approve new tools they've never seen befo
 ## Quick links
 
 - [Our Pitch Deck](docs/assets/tarkistus-pitch.pdf)
+- [Our Pitch Video](https://www.youtube.com/watch?v=-LguEj2e7VQ)
 
 ## ✨ Key Features
 
