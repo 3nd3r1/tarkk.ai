@@ -28,7 +28,7 @@ class TrustScoreAgent(BaseAgent):
     output_model = TrustScoreAgentResponse
 
     def __init__(self, llm_provider: LLMProvider):
-        super().__init__(llm_provider)
+        super().__init__(llm_provider, max_tokens=150000)
 
     async def execute(self, input_data: TrustScoreAgentRequest) -> TrustScoreAgentResponse:
         return await super().execute(input_data)

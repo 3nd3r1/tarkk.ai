@@ -10,6 +10,8 @@ from app.agents.cve_analysis import CVEAnalysisAgent
 from app.agents.cve_analysis.agent import CVEAnalysisAgentRequest
 from app.agents.entity_resolution import EntityResolutionAgent
 from app.agents.entity_resolution.agent import EntityResolutionAgentRequest
+from app.agents.trust_score import TrustScoreAgent
+from app.agents.trust_score.agent import TrustScoreAgentRequest
 from app.agents.vendor_information import VendorInformationAgent
 from app.agents.vendor_information.agent import VendorInformationAgentRequest
 from app.database import get_db
@@ -18,6 +20,7 @@ from app.models.assessment import Assessment as AssessmentModel
 from app.schemas.assessment import Assessment, AssessmentInputData, AssessmentStatus, AssessmentType
 from app.schemas.cve import CVEAnalysis
 from app.schemas.entity import Entity
+from app.schemas.trust_score import TrustScore
 from app.schemas.vendor import Vendor
 from app.services.cve import CVEService
 
@@ -43,6 +46,7 @@ class AssessmentService:
         self.vendor_information_agent = VendorInformationAgent(llm_provider)
         self.cpe_resolver_agent = CPEResolverAgent(llm_provider)
         self.cve_analysis_agent = CVEAnalysisAgent(llm_provider)
+        self.trust_score_agent = TrustScoreAgent(llm_provider)
         self.cve_service = CVEService()
         self.__db = db
 
@@ -161,6 +165,21 @@ class AssessmentService:
         db.commit()
         return True
 
+    async def update_assessment_trust_score(
+        self, assessment_id: UUID, trust_score: TrustScore
+    ) -> bool:
+        db = self._get_db()
+
+        db_assessment = (
+            db.query(AssessmentModel).filter(AssessmentModel.id == str(assessment_id)).first()
+        )
+        if not db_assessment:
+            return False
+
+        db_assessment.trust_score_data = trust_score.model_dump(mode="json")
+        db.commit()
+        return True
+
     async def process_assessment(self, assessment_id: UUID) -> None:
         """Process the assessment in the background."""
         try:
@@ -210,6 +229,7 @@ class AssessmentService:
                 )
 
                 # Analyze CVEs with the CVE analysis agent
+                cve_analysis = None
                 if all_cves:
                     cve_analysis_data = await self._call_cve_analysis_agent(entity, all_cves)
                     cve_analysis = CVEAnalysis(**cve_analysis_data, cves=all_cves)
@@ -217,6 +237,18 @@ class AssessmentService:
                     logging.debug(f"CVE analysis completed for assessment {assessment_id}")
                 else:
                     logging.debug(f"No CVEs found for assessment {assessment_id}")
+
+                # Calculate trust score with graceful failure handling
+                trust_score = await self._call_trust_score_agent_safe(
+                    entity, vendor_info, cve_analysis
+                )
+                if trust_score:
+                    await self.update_assessment_trust_score(assessment_id, trust_score)
+                    logging.debug(f"Trust score calculated for assessment {assessment_id}")
+                else:
+                    logging.debug(
+                        f"Trust score calculation failed for assessment {assessment_id}, continuing without it"
+                    )
 
             except AssessmentServiceAgentError as e:
                 logging.error(f"Agent processing failed for {assessment_id}: {e}")
@@ -270,3 +302,18 @@ class AssessmentService:
             return response.model_dump()
         except AgentError as e:
             raise AssessmentServiceAgentError(f"CVE analysis failed: {e}") from e
+
+    async def _call_trust_score_agent_safe(
+        self, entity: Entity, vendor: Vendor | None, cve_analysis: CVEAnalysis | None
+    ) -> TrustScore | None:
+        """Call trust score agent with graceful failure handling."""
+        try:
+            request = TrustScoreAgentRequest(
+                entity=entity,
+                vendor=vendor,
+                cve_analysis=cve_analysis,
+            )
+            response = await self.trust_score_agent.execute(request)
+            return response.trust_score
+        except AgentError as e:
+            raise AssessmentServiceAgentError(f"Trust score calculation failed: {e}") from e

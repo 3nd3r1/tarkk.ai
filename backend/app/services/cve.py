@@ -7,6 +7,8 @@ import httpx
 from app.config import settings
 from app.schemas.cve import CVE, CVESeverity
 
+logger = logging.getLogger(__name__)
+
 
 class CVEServiceError(Exception):
     """Custom exception for CVEService errors."""
@@ -38,7 +40,7 @@ class CVEService:
             response = await self._client.get(self._base_url, params=params, headers=headers)
             return response.status_code == 200
         except Exception as e:
-            logging.error(f"Failed to test API connection: {e}")
+            logger.error(f"Failed to test API connection: {e}")
             return False
 
     async def get_cves(
@@ -55,24 +57,24 @@ class CVEService:
             params = self._build_search_params(vendor, product, cve_id, severity, limit, offset)
             headers = self._build_headers()
 
-            logging.debug(f"Searching CVEs with params: {params}")
-            logging.debug(f"Making request to: {self._base_url}")
+            logger.debug(f"Searching CVEs with params: {params}")
+            logger.debug(f"Making request to: {self._base_url}")
 
             response = await self._client.get(self._base_url, params=params, headers=headers)
 
-            logging.debug(f"Response status: {response.status_code}")
-            logging.debug(f"Response URL: {response.url}")
+            logger.debug(f"Response status: {response.status_code}")
+            logger.debug(f"Response URL: {response.url}")
 
             if response.status_code == 404:
-                logging.warning(f"API returned 404 for params: {params}")
+                logger.warning(f"API returned 404 for params: {params}")
                 return []  # Return empty list instead of raising error
             elif response.status_code == 403:
-                logging.error(
+                logger.error(
                     "API returned 403 - Rate limited or forbidden. Consider adding API key."
                 )
                 return []
             elif response.status_code == 503:
-                logging.error("API returned 503 - Service unavailable")
+                logger.error("API returned 503 - Service unavailable")
                 return []
 
             response.raise_for_status()
@@ -134,7 +136,7 @@ class CVEService:
                 cve = self._parse_cve_item(cve_data)
                 cves.append(cve)
             except Exception as e:
-                logging.warning(f"Failed to parse CVE {cve_data.get('id', 'unknown')}: {e}")
+                logger.warning(f"Failed to parse CVE {cve_data.get('id', 'unknown')}: {e}")
                 continue
 
         return cves

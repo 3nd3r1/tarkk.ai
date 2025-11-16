@@ -35,6 +35,9 @@ class Assessment(Base):
     # CVE analysis data (stored as JSON when analyzed)
     cve_analysis_data: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
 
+    # Trust score data (stored as JSON when calculated)
+    trust_score_data: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(

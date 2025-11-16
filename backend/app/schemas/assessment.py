@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from app.schemas.cve import CVEAnalysis
 from app.schemas.entity import Entity
+from app.schemas.trust_score import TrustScore
 from app.schemas.vendor import Vendor
 
 if TYPE_CHECKING:
@@ -48,6 +49,7 @@ class Assessment(BaseModel):
     entity: Entity | None = None
     vendor: Vendor | None = None
     cve_analysis: CVEAnalysis | None = None
+    trust_score: TrustScore | None = None
 
     @classmethod
     def from_model(cls, db_assessment: "AssessmentModel") -> "Assessment":
@@ -71,6 +73,10 @@ class Assessment(BaseModel):
         if db_assessment.cve_analysis_data is not None:
             cve_analysis = CVEAnalysis.model_validate(db_assessment.cve_analysis_data)
 
+        trust_score = None
+        if db_assessment.trust_score_data is not None:
+            trust_score = TrustScore.model_validate(db_assessment.trust_score_data)
+
         return cls(
             id=UUID(str(db_assessment.id)),
             input_data=input_data,
@@ -79,4 +85,5 @@ class Assessment(BaseModel):
             entity=entity,
             vendor=vendor,
             cve_analysis=cve_analysis,
+            trust_score=trust_score,
         )
