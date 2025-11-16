@@ -90,6 +90,32 @@ export default function AboutPage() {
               We help organizations make informed decisions about third-party software 
               by providing comprehensive, data-driven security assessments.
             </p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="max-w-2xl mx-auto mt-8"
+            >
+              <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-purple-500/5">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white flex-shrink-0">
+                      <Globe className="h-5 w-5" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold">About Our Name</h3>
+                      <p className="text-sm text-muted-foreground">
+                        <strong>Tarkist.us</strong> comes from the Finnish word <em>tarkistus</em>, which means 
+                        "verification" or "check". This name reflects our core mission: to verify and check 
+                        the security posture of third-party software, providing you with trusted assessments 
+                        you can rely on.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
           </motion.div>
         </div>
       </section>
