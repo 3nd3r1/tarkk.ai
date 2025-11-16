@@ -1,1 +1,74 @@
-Calculate trust score for the given application.
+Please conduct a comprehensive trust score assessment for the following software product and vendor.
+
+## Product Information
+**Product Name**: {{ entity.name }}
+**Category**: {{ entity.category }}
+**Description**: {{ entity.description }}
+**Usage**: {{ entity.usage }}
+{% if entity.website %}**Website**: {{ entity.website }}{% endif %}
+
+## Vendor Information
+**Vendor Name**: {{ entity.vendor.name }}
+{% if entity.vendor.website %}**Vendor Website**: {{ entity.vendor.website }}{% endif %}
+
+{% if vendor %}
+## Additional Vendor Details
+{% if vendor.location %}**Location**: {{ vendor.location }}{% endif %}
+{% if vendor.founded_year %}**Founded**: {{ vendor.founded_year }}{% endif %}
+{% if vendor.employee_count %}**Employees**: {{ vendor.employee_count }}{% endif %}
+{% if vendor.revenue %}**Revenue**: {{ vendor.revenue }}{% endif %}
+{% if vendor.industry %}**Industry**: {{ vendor.industry }}{% endif %}
+{% if vendor.business_model %}**Business Model**: {{ vendor.business_model }}{% endif %}
+{% if vendor.privacy_policy_url %}**Privacy Policy**: {{ vendor.privacy_policy_url }}{% endif %}
+{% if vendor.terms_of_service_url %}**Terms of Service**: {{ vendor.terms_of_service_url }}{% endif %}
+{% if vendor.parent_company %}**Parent Company**: {{ vendor.parent_company }}{% endif %}
+{% if vendor.subsidiaries %}**Subsidiaries**: {{ vendor.subsidiaries | join(', ') }}{% endif %}
+{% if vendor.key_executives %}**Key Executives**: {{ vendor.key_executives | join(', ') }}{% endif %}
+{% endif %}
+
+{% if cve_analysis %}
+## Vulnerability Analysis
+**Total CVEs Found**: {{ cve_analysis.total_cve_count }}
+**Critical CVEs**: {{ cve_analysis.critical_cve_count }}
+**High Severity CVEs**: {{ cve_analysis.high_cve_count }}
+**Medium Severity CVEs**: {{ cve_analysis.medium_cve_count }}
+**Low Severity CVEs**: {{ cve_analysis.low_cve_count }}
+
+{% if cve_analysis.critical_cves %}
+### Critical Vulnerabilities
+{% for cve in cve_analysis.critical_cves %}
+- **{{ cve.cve_id }}** (CVSS: {{ cve.cvss_score }}): {{ cve.description }}
+  - Published: {{ cve.published_date }}
+  - Status: {{ cve.status }}
+{% endfor %}
+{% endif %}
+
+{% if cve_analysis.recent_cves %}
+### Recent Vulnerabilities
+{% for cve in cve_analysis.recent_cves %}
+- **{{ cve.cve_id }}** (CVSS: {{ cve.cvss_score }}, Severity: {{ cve.severity }}): {{ cve.description }}
+{% endfor %}
+{% endif %}
+{% endif %}
+
+{% if additional_context %}
+## Additional Context
+{{ additional_context }}
+{% endif %}
+
+## Assessment Task
+Based on the provided information, calculate a comprehensive trust score covering all 8 categories. For each category, provide:
+1. A numerical score (0-100)
+2. A trust level classification
+3. Detailed reasoning for the score
+4. Key factors that influenced the assessment
+5. Identified risks and strengths
+
+Then provide an overall trust score with:
+- Overall numerical score and level
+- High-level summary of the assessment
+- Key recommendations for risk mitigation
+- Confidence score in your assessment
+- Any limitations or data gaps
+
+Return your analysis as a structured JSON response matching the provided schema.

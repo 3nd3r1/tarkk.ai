@@ -145,7 +145,9 @@ class AssessmentService:
         db.commit()
         return True
 
-    async def update_assessment_cve_analysis(self, assessment_id: UUID, cve_analysis: CVEAnalysis) -> bool:
+    async def update_assessment_cve_analysis(
+        self, assessment_id: UUID, cve_analysis: CVEAnalysis
+    ) -> bool:
         """Update assessment CVE analysis data in database."""
         db = self._get_db()
 

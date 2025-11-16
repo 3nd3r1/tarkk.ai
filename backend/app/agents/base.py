@@ -80,7 +80,7 @@ class BaseAgent(Generic[TInput, TOutput]):
 
         # If no code blocks found, try to find JSON-like content
         # Look for content that starts with { and ends with }
-        json_pattern = r'(\{.*\})'
+        json_pattern = r"(\{.*\})"
         json_match = re.search(json_pattern, response, re.DOTALL)
         if json_match:
             return json_match.group(1).strip()
